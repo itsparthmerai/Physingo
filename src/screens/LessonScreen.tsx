@@ -81,6 +81,24 @@ export function LessonScreen({ route, navigation }: Props) {
   }
 
   const { topic, lesson } = data;
+
+  if (lesson.questions.length === 0) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.failedContainer}>
+          <Text style={styles.failedEmoji}>🚧</Text>
+          <Text style={styles.failedTitle}>Coming soon</Text>
+          <Text style={styles.failedSubtitle}>
+            {lesson.title} hasn't been added yet. Check back soon!
+          </Text>
+          <View style={{ marginTop: 20 }}>
+            <GhostButton label="Go Back" onPress={() => navigation.goBack()} scale={scale} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const question = lesson.questions[index];
   const total = lesson.questions.length;
 
