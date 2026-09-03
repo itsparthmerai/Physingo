@@ -6,7 +6,7 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 import { TOPICS } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { StatPill } from '../components/StatPill';
-import { LessonNode } from '../components/LessonNode';
+import { TopicCard } from '../components/TopicCard';
 import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -14,8 +14,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export function HomeScreen({ navigation }: Props) {
   const xp = useProgressStore((s) => s.xp);
   const streak = useProgressStore((s) => s.streak);
-  const lessonProgress = useProgressStore((s) => s.lessonProgress);
-  const isLessonUnlocked = useProgressStore((s) => s.isLessonUnlocked);
+  const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -31,34 +30,22 @@ export function HomeScreen({ navigation }: Props) {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {TOPICS.map((topic) => (
-          <View key={topic.id} style={styles.topicSection}>
-            <View style={[styles.topicHeader, { backgroundColor: topic.color }]}>
-              <Text style={styles.topicIcon}>{topic.icon}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.topicTitle}>{topic.title}</Text>
-                <Text style={styles.topicDescription}>{topic.description}</Text>
-              </View>
+        <Text style={styles.sectionLabel}>Study tracks</Text>
+        <View style={styles.grid}>
+          {TOPICS.map((topic) => (
+            <View key={topic.id} style={styles.cardSlot}>
+              <TopicCard
+                title={topic.title}
+                description={topic.description}
+                icon={topic.icon}
+                color={topic.color}
+                completed={getTopicCompletedCount(topic.id)}
+                total={topic.lessons.length}
+                onPress={() => navigation.navigate('Topic', { topicId: topic.id })}
+              />
             </View>
-            <View style={styles.path}>
-              {topic.lessons.map((lesson, index) => {
-                const locked = !isLessonUnlocked(topic.id, lesson.id);
-                const stars = lessonProgress[lesson.id]?.stars ?? 0;
-                return (
-                  <LessonNode
-                    key={lesson.id}
-                    title={lesson.title}
-                    index={index}
-                    stars={stars}
-                    locked={locked}
-                    topicColor={topic.color}
-                    onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}
-                  />
-                );
-              })}
-            </View>
-          </View>
-        ))}
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -78,18 +65,19 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statsRow: { flexDirection: 'row', gap: 8 },
-  scrollContent: { paddingBottom: 40 },
-  topicSection: { marginBottom: 24 },
-  topicHeader: {
+  scrollContent: { padding: 16, paddingBottom: 40 },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+  grid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    borderRadius: 16,
-    padding: 14,
+    flexWrap: 'wrap',
     gap: 12,
   },
-  topicIcon: { fontSize: 30 },
-  topicTitle: { fontSize: 18, fontWeight: '800', color: colors.white },
-  topicDescription: { fontSize: 12, color: colors.white, opacity: 0.9, marginTop: 2 },
-  path: { paddingTop: 16, paddingHorizontal: 16 },
+  cardSlot: { width: '47%' },
 });

@@ -44,7 +44,11 @@ export function ProfileScreen({ navigation }: Props) {
           const totalLessons = topic.lessons.length;
           const pct = totalLessons > 0 ? completed / totalLessons : 0;
           return (
-            <View key={topic.id} style={styles.topicRow}>
+            <Pressable
+              key={topic.id}
+              style={styles.topicRow}
+              onPress={() => navigation.navigate('Topic', { topicId: topic.id })}
+            >
               <View style={[styles.topicIconWrap, { backgroundColor: topic.color }]}>
                 <Text style={styles.topicIcon}>{topic.icon}</Text>
               </View>
@@ -55,7 +59,7 @@ export function ProfileScreen({ navigation }: Props) {
                 </View>
               </View>
               <Text style={styles.topicCount}>{completed}/{totalLessons}</Text>
-            </View>
+            </Pressable>
           );
         })}
       </ScrollView>

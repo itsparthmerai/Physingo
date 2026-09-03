@@ -2,12 +2,15 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/HomeScreen';
+import { TopicScreen } from '../screens/TopicScreen';
 import { LessonScreen } from '../screens/LessonScreen';
 import { LessonResultScreen } from '../screens/LessonResultScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import type { TopicId } from '../content/types';
 
 export type RootStackParamList = {
   Home: undefined;
+  Topic: { topicId: TopicId };
   Lesson: { lessonId: string };
   LessonResult: {
     lessonId: string;
@@ -25,6 +28,7 @@ export function RootNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Topic" component={TopicScreen} />
         <Stack.Screen name="Lesson" component={LessonScreen} />
         <Stack.Screen
           name="LessonResult"

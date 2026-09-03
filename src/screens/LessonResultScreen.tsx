@@ -3,14 +3,16 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { getLesson } from '../content';
 import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LessonResult'>;
 
 export function LessonResultScreen({ route, navigation }: Props) {
-  const { correct, total, xpEarned } = route.params;
+  const { lessonId, correct, total, xpEarned } = route.params;
   const accuracy = Math.round((correct / total) * 100);
   const perfect = correct === total;
+  const topicId = getLesson(lessonId)?.topic.id;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -35,7 +37,9 @@ export function LessonResultScreen({ route, navigation }: Props) {
 
         <Pressable
           style={styles.primaryButton}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() =>
+            topicId ? navigation.navigate('Topic', { topicId }) : navigation.navigate('Home')
+          }
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </Pressable>
