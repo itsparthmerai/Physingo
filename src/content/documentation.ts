@@ -7,7 +7,11 @@ export const documentation: Topic = {
   description: 'SOAP notes and defensible documentation',
   icon: '📝',
   color: '#FF4B4B',
-  lessons: [
+  units: [
+    {
+      id: 'documentation-unit-1',
+      title: 'Documentation',
+      lessons: [
     {
       id: 'documentation-1',
       title: 'SOAP Note Basics',
@@ -244,6 +248,8 @@ export const documentation: Topic = {
           correctIndex: 1,
           explanation: 'Documenting the informed consent discussion protects both patient autonomy and the clinician legally.',
         },
+      ],
+    },
       ],
     },
   ],

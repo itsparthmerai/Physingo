@@ -7,7 +7,11 @@ export const goniometry: Topic = {
   description: 'Joint ROM measurement and normal values',
   icon: '📐',
   color: '#1CB0F6',
-  lessons: [
+  units: [
+    {
+      id: 'goniometry-unit-1',
+      title: 'Goniometry',
+      lessons: [
     {
       id: 'goniometry-1',
       title: 'Principles & Setup',
@@ -222,6 +226,8 @@ export const goniometry: Topic = {
           correctIndex: 2,
           explanation: 'Goniometer color has no clinical effect on measurement accuracy.',
         },
+      ],
+    },
       ],
     },
   ],

@@ -7,7 +7,11 @@ export const differentialDiagnosis: Topic = {
   description: 'Clinical reasoning and red-flag screening',
   icon: '🧠',
   color: '#FF9600',
-  lessons: [
+  units: [
+    {
+      id: 'differential-diagnosis-unit-1',
+      title: 'Differential Diagnosis',
+      lessons: [
     {
       id: 'diffdx-1',
       title: 'Red Flags & Screening',
@@ -216,6 +220,8 @@ export const differentialDiagnosis: Topic = {
           prompt: 'A locked knee that cannot fully extend after a twisting injury may indicate a displaced (bucket-handle) meniscal tear requiring orthopedic referral.',
           correctAnswer: true,
         },
+      ],
+    },
       ],
     },
   ],

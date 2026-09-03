@@ -37,6 +37,12 @@ export interface Lesson {
   questions: Question[];
 }
 
+export interface Unit {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+}
+
 export type TopicId =
   | 'anatomy'
   | 'goniometry'
@@ -52,5 +58,5 @@ export interface Topic {
   description: string;
   icon: string;
   color: string;
-  lessons: Lesson[];
+  units: Unit[];
 }

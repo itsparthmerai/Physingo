@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TOPICS } from '../content';
+import { TOPICS, getTopicLessons } from '../content';
 
 export interface LessonProgress {
   bestAccuracy: number;
@@ -96,9 +96,10 @@ export const useProgressStore = create<ProgressState>()(
       isLessonUnlocked: (topicId, lessonId) => {
         const topic = TOPICS.find((t) => t.id === topicId);
         if (!topic) return false;
-        const index = topic.lessons.findIndex((l) => l.id === lessonId);
+        const flat = getTopicLessons(topic);
+        const index = flat.findIndex((l) => l.id === lessonId);
         if (index <= 0) return true;
-        const prevLessonId = topic.lessons[index - 1].id;
+        const prevLessonId = flat[index - 1].id;
         return Boolean(get().lessonProgress[prevLessonId]);
       },
 
@@ -106,7 +107,7 @@ export const useProgressStore = create<ProgressState>()(
         const topic = TOPICS.find((t) => t.id === topicId);
         if (!topic) return 0;
         const progress = get().lessonProgress;
-        return topic.lessons.filter((l) => Boolean(progress[l.id])).length;
+        return getTopicLessons(topic).filter((l) => Boolean(progress[l.id])).length;
       },
 
       getTotalLessonsCompleted: () => {

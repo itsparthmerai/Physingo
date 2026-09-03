@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, StyleSheet, Platform } from 'react-n
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { getTopic } from '../content';
+import { getTopic, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { LessonNode } from '../components/LessonNode';
 import { colors } from '../theme/colors';
@@ -26,7 +26,11 @@ export function TopicScreen({ route, navigation }: Props) {
     );
   }
 
-  const completed = topic.lessons.filter((l) => Boolean(lessonProgress[l.id])).length;
+  const allLessons = getTopicLessons(topic);
+  const completed = allLessons.filter((l) => Boolean(lessonProgress[l.id])).length;
+  const showUnitHeaders = topic.units.length > 1;
+
+  let runningIndex = 0;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -38,28 +42,40 @@ export function TopicScreen({ route, navigation }: Props) {
         <Text style={[styles.title, { fontSize: rs(22, scale) }]}>{topic.title}</Text>
         <Text style={[styles.description, { fontSize: rs(13, scale) }]}>{topic.description}</Text>
         <Text style={[styles.progressLabel, { fontSize: rs(12, scale) }]}>
-          {completed}/{topic.lessons.length} lessons complete
+          {completed}/{allLessons.length} lessons complete
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.path}>
         <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
-          {topic.lessons.map((lesson, index) => {
-            const locked = !isLessonUnlocked(topic.id, lesson.id);
-            const stars = lessonProgress[lesson.id]?.stars ?? 0;
-            return (
-              <LessonNode
-                key={lesson.id}
-                title={lesson.title}
-                index={index}
-                stars={stars}
-                locked={locked}
-                topicColor={topic.color}
-                scale={scale}
-                onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}
-              />
-            );
-          })}
+          {topic.units.map((unit) => (
+            <View key={unit.id} style={styles.unitGroup}>
+              {showUnitHeaders && (
+                <View style={styles.unitHeaderWrap}>
+                  <Text style={[styles.unitHeader, { color: topic.color, fontSize: rs(13, scale) }]}>
+                    {unit.title}
+                  </Text>
+                </View>
+              )}
+              {unit.lessons.map((lesson) => {
+                const index = runningIndex++;
+                const locked = !isLessonUnlocked(topic.id, lesson.id);
+                const stars = lessonProgress[lesson.id]?.stars ?? 0;
+                return (
+                  <LessonNode
+                    key={lesson.id}
+                    title={lesson.title}
+                    index={index}
+                    stars={stars}
+                    locked={locked}
+                    topicColor={topic.color}
+                    scale={scale}
+                    onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}
+                  />
+                );
+              })}
+            </View>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -99,5 +115,16 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     marginTop: 12,
   },
-  path: { paddingTop: 24, paddingHorizontal: 16, paddingBottom: 40 },
+  path: { paddingTop: 8, paddingHorizontal: 16, paddingBottom: 40 },
+  unitGroup: { marginTop: 24 },
+  unitHeaderWrap: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  unitHeader: {
+    fontWeight: '800',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
 });

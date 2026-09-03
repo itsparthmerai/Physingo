@@ -6,7 +6,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainTabParamList } from '../navigation/MainTabs';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { TOPICS } from '../content';
+import { TOPICS, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
@@ -60,7 +60,7 @@ export function AccountScreen({ navigation }: Props) {
           <Text style={[styles.sectionTitle, { fontSize: rs(16, scale) }]}>Your tracks</Text>
           {TOPICS.map((topic) => {
             const completed = getTopicCompletedCount(topic.id);
-            const totalLessons = topic.lessons.length;
+            const totalLessons = getTopicLessons(topic).length;
             const pct = totalLessons > 0 ? completed / totalLessons : 0;
             return (
               <Pressable

@@ -7,7 +7,11 @@ export const hep: Topic = {
   description: 'Home exercise program design and patient education',
   icon: '🏠',
   color: '#2DD4BF',
-  lessons: [
+  units: [
+    {
+      id: 'hep-unit-1',
+      title: 'HEP',
+      lessons: [
     {
       id: 'hep-1',
       title: 'HEP Design Principles',
@@ -248,6 +252,8 @@ export const hep: Topic = {
           prompt: 'A HEP should include instructions on what to do (e.g., modify or stop and contact the clinic) if the patient experiences a significant increase in symptoms.',
           correctAnswer: true,
         },
+      ],
+    },
       ],
     },
   ],

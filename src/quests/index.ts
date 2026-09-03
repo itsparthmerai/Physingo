@@ -1,5 +1,5 @@
 import { useProgressStore } from '../store/useProgressStore';
-import { TOPICS } from '../content';
+import { TOPICS, getTopicLessons } from '../content';
 
 export interface Quest {
   id: string;
@@ -64,10 +64,15 @@ export function useObjectiveQuests(): Quest[] {
 
   const topicCounts = TOPICS.map((t) => ({
     completed: getTopicCompletedCount(t.id),
-    total: t.lessons.length,
+    total: getTopicLessons(t).length,
   }));
-  const bestTopicCompleted = Math.max(0, ...topicCounts.map((t) => t.completed));
-  const bestTopicTarget = TOPICS[0]?.lessons.length ?? 1;
+  // Study tracks vary in size (e.g. Anatomy has far more lessons than others), so
+  // "best track" is the one closest to fully complete, not the one with the most raw completions.
+  const bestTopic = topicCounts.reduce((best, t) => {
+    const ratio = t.total > 0 ? t.completed / t.total : 0;
+    const bestRatio = best.total > 0 ? best.completed / best.total : 0;
+    return ratio > bestRatio ? t : best;
+  }, topicCounts[0] ?? { completed: 0, total: 1 });
   const topicsStarted = topicCounts.filter((t) => t.completed >= 1).length;
 
   return [
@@ -121,9 +126,9 @@ export function useObjectiveQuests(): Quest[] {
       title: 'Topic Master',
       description: 'Fully complete every lesson in one study track',
       icon: '🎓',
-      progress: clamp(bestTopicCompleted, bestTopicTarget),
-      target: bestTopicTarget,
-      completed: bestTopicCompleted >= bestTopicTarget,
+      progress: bestTopic.completed,
+      target: bestTopic.total,
+      completed: bestTopic.total > 0 && bestTopic.completed >= bestTopic.total,
     },
     {
       id: 'obj-well-rounded',

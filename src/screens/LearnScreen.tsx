@@ -6,7 +6,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainTabParamList } from '../navigation/MainTabs';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { TOPICS } from '../content';
+import { TOPICS, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { StatPill } from '../components/StatPill';
 import { TopicCard } from '../components/TopicCard';
@@ -48,7 +48,7 @@ export function LearnScreen({ navigation }: Props) {
                   icon={topic.icon}
                   color={topic.color}
                   completed={getTopicCompletedCount(topic.id)}
-                  total={topic.lessons.length}
+                  total={getTopicLessons(topic).length}
                   scale={scale}
                   onPress={() => navigation.navigate('Topic', { topicId: topic.id })}
                 />

@@ -7,7 +7,11 @@ export const specialTests: Topic = {
   description: 'Orthopedic special tests and their significance',
   icon: '🔍',
   color: '#CE82FF',
-  lessons: [
+  units: [
+    {
+      id: 'special-tests-unit-1',
+      title: 'Special Tests',
+      lessons: [
     {
       id: 'special-tests-1',
       title: 'Knee Tests',
@@ -221,6 +225,8 @@ export const specialTests: Topic = {
           correctIndex: 1,
           explanation: 'Pain distally with proximal squeeze suggests syndesmotic (high ankle) injury.',
         },
+      ],
+    },
       ],
     },
   ],
