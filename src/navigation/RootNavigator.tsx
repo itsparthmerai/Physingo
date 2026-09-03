@@ -24,14 +24,18 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export function RootNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+        <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'fade' }} />
         <Stack.Screen name="Topic" component={TopicScreen} />
-        <Stack.Screen name="Lesson" component={LessonScreen} />
+        <Stack.Screen
+          name="Lesson"
+          component={LessonScreen}
+          options={{ animation: 'slide_from_bottom', animationDuration: 320 }}
+        />
         <Stack.Screen
           name="LessonResult"
           component={LessonResultScreen}
-          options={{ gestureEnabled: false }}
+          options={{ gestureEnabled: false, animation: 'fade', animationDuration: 260 }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, TextInput, ScrollView, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -9,8 +9,10 @@ import { useProgressStore } from '../store/useProgressStore';
 import { ProgressBar } from '../components/ProgressBar';
 import { HeartsDisplay } from '../components/HeartsDisplay';
 import { OptionButton, OptionState } from '../components/OptionButton';
+import { PrimaryButton, GhostButton } from '../components/Buttons';
 import { sounds } from '../audio/sounds';
 import { colors } from '../theme/colors';
+import { useResponsive, rs } from '../theme/responsive';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Lesson'>;
 
@@ -42,6 +44,7 @@ export function LessonScreen({ route, navigation }: Props) {
   const { lessonId } = route.params;
   const data = useMemo(() => getLesson(lessonId), [lessonId]);
   const completeLesson = useProgressStore((s) => s.completeLesson);
+  const { scale, contentMaxWidth } = useResponsive();
 
   const [index, setIndex] = useState(0);
   const [hearts, setHearts] = useState(MAX_HEARTS);
@@ -53,6 +56,21 @@ export function LessonScreen({ route, navigation }: Props) {
   const [fillAnswer, setFillAnswer] = useState('');
   const [multiAnswer, setMultiAnswer] = useState<number[]>([]);
   const [failed, setFailed] = useState(false);
+
+  const feedbackAnim = useRef(new Animated.Value(0)).current;
+  const questionAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (submitted) {
+      feedbackAnim.setValue(0);
+      Animated.spring(feedbackAnim, { toValue: 1, useNativeDriver: true, friction: 8, tension: 90 }).start();
+    }
+  }, [submitted, feedbackAnim]);
+
+  useEffect(() => {
+    questionAnim.setValue(0);
+    Animated.timing(questionAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+  }, [index, questionAnim]);
 
   if (!data) {
     return (
@@ -145,12 +163,12 @@ export function LessonScreen({ route, navigation }: Props) {
           <Text style={styles.failedEmoji}>💔</Text>
           <Text style={styles.failedTitle}>Out of hearts!</Text>
           <Text style={styles.failedSubtitle}>Review the material and try this lesson again.</Text>
-          <Pressable style={[styles.primaryButton, { marginTop: 24 }]} onPress={handleRetry}>
-            <Text style={styles.primaryButtonText}>Try Again</Text>
-          </Pressable>
-          <Pressable style={styles.secondaryButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.secondaryButtonText}>Exit Lesson</Text>
-          </Pressable>
+          <View style={{ width: '100%', maxWidth: 420, marginTop: 24 }}>
+            <PrimaryButton label="Try Again" onPress={handleRetry} variant="success" scale={scale} />
+            <View style={{ alignItems: 'center', marginTop: 4 }}>
+              <GhostButton label="Exit Lesson" onPress={() => navigation.goBack()} scale={scale} />
+            </View>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -177,133 +195,171 @@ export function LessonScreen({ route, navigation }: Props) {
     return 'default';
   }
 
+  const feedbackTranslateY = feedbackAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={12}>
           <Text style={styles.closeIcon}>✕</Text>
         </Pressable>
-        <ProgressBar progress={(index + (submitted ? 1 : 0)) / total} />
+        <ProgressBar progress={(index + (submitted ? 1 : 0)) / total} color={topic.color} />
         <HeartsDisplay hearts={hearts} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.topicTag}>{topic.icon} {lesson.title}</Text>
-        <Text style={styles.prompt}>{question.prompt}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Animated.View
+          style={[
+            styles.content,
+            {
+              maxWidth: contentMaxWidth,
+              alignSelf: 'center',
+              width: '100%',
+              opacity: questionAnim,
+              transform: [
+                {
+                  translateY: questionAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Text style={[styles.topicTag, { color: topic.color, fontSize: rs(13, scale) }]}>
+            {topic.icon} {lesson.title}
+          </Text>
+          <Text style={[styles.prompt, { fontSize: rs(20, scale) }]}>{question.prompt}</Text>
 
-        {question.type === 'mcq' &&
-          question.options.map((opt, i) => (
-            <OptionButton
-              key={i}
-              label={opt}
-              state={optionState(i)}
-              disabled={submitted}
-              onPress={() => setMcqAnswer(i)}
-            />
-          ))}
-
-        {question.type === 'true-false' && (
-          <View style={styles.tfRow}>
-            <View style={styles.tfOption}>
-              <OptionButton
-                label="True"
-                state={
-                  !submitted
-                    ? tfAnswer === true
-                      ? 'selected'
-                      : 'default'
-                    : question.correctAnswer === true
-                    ? 'correct'
-                    : tfAnswer === true
-                    ? 'incorrect'
-                    : 'default'
-                }
-                disabled={submitted}
-                onPress={() => setTfAnswer(true)}
-              />
-            </View>
-            <View style={styles.tfOption}>
-              <OptionButton
-                label="False"
-                state={
-                  !submitted
-                    ? tfAnswer === false
-                      ? 'selected'
-                      : 'default'
-                    : question.correctAnswer === false
-                    ? 'correct'
-                    : tfAnswer === false
-                    ? 'incorrect'
-                    : 'default'
-                }
-                disabled={submitted}
-                onPress={() => setTfAnswer(false)}
-              />
-            </View>
-          </View>
-        )}
-
-        {question.type === 'fill-blank' && (
-          <TextInput
-            style={[
-              styles.textInput,
-              submitted && (wasCorrect ? styles.textInputCorrect : styles.textInputIncorrect),
-            ]}
-            placeholder="Type your answer"
-            value={fillAnswer}
-            onChangeText={setFillAnswer}
-            editable={!submitted}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        )}
-
-        {question.type === 'multi-select' && (
-          <>
-            <Text style={styles.hint}>Select all that apply</Text>
-            {question.options.map((opt, i) => (
+          {question.type === 'mcq' &&
+            question.options.map((opt, i) => (
               <OptionButton
                 key={i}
                 label={opt}
                 state={optionState(i)}
                 disabled={submitted}
-                onPress={() =>
-                  setMultiAnswer((prev) =>
-                    prev.includes(i) ? prev.filter((v) => v !== i) : [...prev, i]
-                  )
-                }
+                scale={scale}
+                onPress={() => setMcqAnswer(i)}
               />
             ))}
-          </>
-        )}
 
-        {submitted && (
-          <View style={[styles.feedbackBanner, wasCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect]}>
-            <Text style={styles.feedbackTitle}>{wasCorrect ? 'Correct!' : 'Not quite'}</Text>
-            {question.explanation ? <Text style={styles.feedbackText}>{question.explanation}</Text> : null}
-            {!wasCorrect && question.type === 'fill-blank' && (
-              <Text style={styles.feedbackText}>
-                Accepted answer: {question.acceptedAnswers[0]}
-              </Text>
-            )}
-          </View>
-        )}
+          {question.type === 'true-false' && (
+            <View style={styles.tfRow}>
+              <View style={styles.tfOption}>
+                <OptionButton
+                  label="True"
+                  scale={scale}
+                  state={
+                    !submitted
+                      ? tfAnswer === true
+                        ? 'selected'
+                        : 'default'
+                      : question.correctAnswer === true
+                      ? 'correct'
+                      : tfAnswer === true
+                      ? 'incorrect'
+                      : 'default'
+                  }
+                  disabled={submitted}
+                  onPress={() => setTfAnswer(true)}
+                />
+              </View>
+              <View style={styles.tfOption}>
+                <OptionButton
+                  label="False"
+                  scale={scale}
+                  state={
+                    !submitted
+                      ? tfAnswer === false
+                        ? 'selected'
+                        : 'default'
+                      : question.correctAnswer === false
+                      ? 'correct'
+                      : tfAnswer === false
+                      ? 'incorrect'
+                      : 'default'
+                  }
+                  disabled={submitted}
+                  onPress={() => setTfAnswer(false)}
+                />
+              </View>
+            </View>
+          )}
+
+          {question.type === 'fill-blank' && (
+            <TextInput
+              style={[
+                styles.textInput,
+                { fontSize: rs(16, scale), paddingVertical: rs(14, scale) },
+                submitted && (wasCorrect ? styles.textInputCorrect : styles.textInputIncorrect),
+              ]}
+              placeholder="Type your answer"
+              placeholderTextColor={colors.textMuted}
+              value={fillAnswer}
+              onChangeText={setFillAnswer}
+              editable={!submitted}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          )}
+
+          {question.type === 'multi-select' && (
+            <>
+              <Text style={styles.hint}>Select all that apply</Text>
+              {question.options.map((opt, i) => (
+                <OptionButton
+                  key={i}
+                  label={opt}
+                  state={optionState(i)}
+                  disabled={submitted}
+                  scale={scale}
+                  onPress={() =>
+                    setMultiAnswer((prev) =>
+                      prev.includes(i) ? prev.filter((v) => v !== i) : [...prev, i]
+                    )
+                  }
+                />
+              ))}
+            </>
+          )}
+
+          {submitted && (
+            <Animated.View
+              style={[
+                styles.feedbackBanner,
+                wasCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect,
+                { opacity: feedbackAnim, transform: [{ translateY: feedbackTranslateY }] },
+              ]}
+            >
+              <Text style={styles.feedbackTitle}>{wasCorrect ? 'Correct!' : 'Not quite'}</Text>
+              {question.explanation ? <Text style={styles.feedbackText}>{question.explanation}</Text> : null}
+              {!wasCorrect && question.type === 'fill-blank' && (
+                <Text style={styles.feedbackText}>
+                  Accepted answer: {question.acceptedAnswers[0]}
+                </Text>
+              )}
+            </Animated.View>
+          )}
+        </Animated.View>
       </ScrollView>
 
       <View style={styles.footer}>
-        {!submitted ? (
-          <Pressable
-            style={[styles.primaryButton, !hasAnswer() && styles.disabledButton]}
-            disabled={!hasAnswer()}
-            onPress={handleCheck}
-          >
-            <Text style={styles.primaryButtonText}>Check</Text>
-          </Pressable>
-        ) : (
-          <Pressable style={styles.primaryButton} onPress={handleContinue}>
-            <Text style={styles.primaryButtonText}>Continue</Text>
-          </Pressable>
-        )}
+        <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
+          {!submitted ? (
+            <PrimaryButton
+              label="Check"
+              onPress={handleCheck}
+              disabled={!hasAnswer()}
+              variant="success"
+              scale={scale}
+            />
+          ) : (
+            <PrimaryButton
+              label="Continue"
+              onPress={handleContinue}
+              variant={wasCorrect ? 'success' : 'primary'}
+              scale={scale}
+            />
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -320,43 +376,35 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   closeIcon: { fontSize: 20, color: colors.textMuted },
-  content: { padding: 20, paddingBottom: 40 },
-  topicTag: { fontSize: 13, fontWeight: '700', color: colors.textMuted, marginBottom: 12 },
-  prompt: { fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 20 },
+  scrollContent: { padding: 20, paddingBottom: 40 },
+  content: {},
+  topicTag: { fontWeight: '800', marginBottom: 12 },
+  prompt: { fontWeight: '700', color: colors.text, marginBottom: 20 },
   hint: { fontSize: 13, color: colors.textMuted, marginBottom: 10 },
   tfRow: { flexDirection: 'row', gap: 12 },
   tfOption: { flex: 1 },
   textInput: {
     borderWidth: 2,
+    borderBottomWidth: 4,
     borderColor: colors.border,
+    borderBottomColor: colors.cardBorderBottom,
     borderRadius: 14,
-    paddingVertical: 14,
     paddingHorizontal: 16,
-    fontSize: 16,
     backgroundColor: colors.card,
+    color: colors.text,
   },
-  textInputCorrect: { borderColor: colors.successDark, backgroundColor: '#EAFBE0' },
-  textInputIncorrect: { borderColor: colors.errorDark, backgroundColor: '#FFEAEA' },
+  textInputCorrect: { borderColor: colors.successDark, borderBottomColor: colors.successPressed, backgroundColor: colors.successTint },
+  textInputIncorrect: { borderColor: colors.errorDark, borderBottomColor: colors.errorPressed, backgroundColor: colors.errorTint },
   feedbackBanner: {
     marginTop: 20,
     borderRadius: 14,
     padding: 16,
   },
-  feedbackCorrect: { backgroundColor: '#EAFBE0' },
-  feedbackIncorrect: { backgroundColor: '#FFEAEA' },
+  feedbackCorrect: { backgroundColor: colors.successTint },
+  feedbackIncorrect: { backgroundColor: colors.errorTint },
   feedbackTitle: { fontSize: 16, fontWeight: '800', color: colors.text, marginBottom: 4 },
   feedbackText: { fontSize: 14, color: colors.text },
   footer: { padding: 16 },
-  primaryButton: {
-    backgroundColor: colors.success,
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  disabledButton: { backgroundColor: colors.locked },
-  primaryButtonText: { color: colors.white, fontSize: 16, fontWeight: '800' },
-  secondaryButton: { paddingVertical: 14, alignItems: 'center', marginTop: 8 },
-  secondaryButtonText: { color: colors.textMuted, fontSize: 15, fontWeight: '600' },
   failedContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   failedEmoji: { fontSize: 56, marginBottom: 12 },
   failedTitle: { fontSize: 22, fontWeight: '800', color: colors.text },

@@ -11,43 +11,50 @@ import { useProgressStore } from '../store/useProgressStore';
 import { StatPill } from '../components/StatPill';
 import { TopicCard } from '../components/TopicCard';
 import { colors } from '../theme/colors';
+import { useResponsive, rs } from '../theme/responsive';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'Learn'>,
   NativeStackScreenProps<RootStackParamList>
 >;
 
+const SLOT_WIDTH: Record<number, `${number}%`> = { 2: '47%', 3: '31%' };
+
 export function LearnScreen({ navigation }: Props) {
   const xp = useProgressStore((s) => s.xp);
   const streak = useProgressStore((s) => s.streak);
   const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
+  const { scale, columns, contentMaxWidth } = useResponsive();
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
-        <Text style={styles.appName}>Physingo</Text>
+        <Text style={[styles.appName, { fontSize: rs(26, scale) }]}>Physingo</Text>
         <View style={styles.statsRow}>
-          <StatPill icon="🔥" value={streak} />
-          <StatPill icon="⚡" value={xp} />
+          <StatPill icon="🔥" value={streak} tint={colors.streakTint} textColor={colors.streak} scale={scale} />
+          <StatPill icon="⚡" value={xp} tint={colors.xpTint} textColor={colors.xpDark} scale={scale} />
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.sectionLabel}>Study tracks</Text>
-        <View style={styles.grid}>
-          {TOPICS.map((topic) => (
-            <View key={topic.id} style={styles.cardSlot}>
-              <TopicCard
-                title={topic.title}
-                description={topic.description}
-                icon={topic.icon}
-                color={topic.color}
-                completed={getTopicCompletedCount(topic.id)}
-                total={topic.lessons.length}
-                onPress={() => navigation.navigate('Topic', { topicId: topic.id })}
-              />
-            </View>
-          ))}
+      <ScrollView contentContainerStyle={[styles.scrollContent, { padding: rs(16, Math.min(scale, 1.2)) }]}>
+        <View style={{ maxWidth: contentMaxWidth * (columns / 2), alignSelf: 'center', width: '100%' }}>
+          <Text style={[styles.sectionLabel, { fontSize: rs(13, scale) }]}>Study tracks</Text>
+          <View style={[styles.grid, { gap: rs(12, scale) }]}>
+            {TOPICS.map((topic) => (
+              <View key={topic.id} style={{ width: SLOT_WIDTH[columns] ?? '47%' }}>
+                <TopicCard
+                  title={topic.title}
+                  description={topic.description}
+                  icon={topic.icon}
+                  color={topic.color}
+                  completed={getTopicCompletedCount(topic.id)}
+                  total={topic.lessons.length}
+                  scale={scale}
+                  onPress={() => navigation.navigate('Topic', { topicId: topic.id })}
+                />
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -62,7 +69,6 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   appName: {
-    fontSize: 26,
     fontWeight: '800',
     color: colors.text,
     marginBottom: 8,
@@ -70,7 +76,6 @@ const styles = StyleSheet.create({
   statsRow: { flexDirection: 'row', gap: 8 },
   scrollContent: { padding: 16, paddingBottom: 40 },
   sectionLabel: {
-    fontSize: 13,
     fontWeight: '700',
     color: colors.textMuted,
     textTransform: 'uppercase',
@@ -82,5 +87,4 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
   },
-  cardSlot: { width: '47%' },
 });
