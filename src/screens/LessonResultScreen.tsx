@@ -38,7 +38,7 @@ export function LessonResultScreen({ route, navigation }: Props) {
         <Pressable
           style={styles.primaryButton}
           onPress={() =>
-            topicId ? navigation.navigate('Topic', { topicId }) : navigation.navigate('Home')
+            topicId ? navigation.navigate('Topic', { topicId }) : navigation.navigate('MainTabs')
           }
         >
           <Text style={styles.primaryButtonText}>Continue</Text>

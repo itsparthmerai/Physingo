@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { MainTabParamList } from '../navigation/MainTabs';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { TOPICS } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
@@ -9,9 +12,12 @@ import { StatPill } from '../components/StatPill';
 import { TopicCard } from '../components/TopicCard';
 import { colors } from '../theme/colors';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, 'Learn'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
-export function HomeScreen({ navigation }: Props) {
+export function LearnScreen({ navigation }: Props) {
   const xp = useProgressStore((s) => s.xp);
   const streak = useProgressStore((s) => s.streak);
   const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
@@ -23,9 +29,6 @@ export function HomeScreen({ navigation }: Props) {
         <View style={styles.statsRow}>
           <StatPill icon="🔥" value={streak} />
           <StatPill icon="⚡" value={xp} />
-          <Pressable onPress={() => navigation.navigate('Profile')}>
-            <StatPill icon="👤" value="Profile" />
-          </Pressable>
         </View>
       </View>
 

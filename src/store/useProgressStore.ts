@@ -9,14 +9,25 @@ export interface LessonProgress {
   timesCompleted: number;
 }
 
+export interface DailyActivity {
+  date: string;
+  xp: number;
+  lessons: number;
+}
+
 interface ProgressState {
   xp: number;
   streak: number;
   lastActiveDate: string | null;
   lessonProgress: Record<string, LessonProgress>;
+  daily: DailyActivity;
+  soundEnabled: boolean;
   completeLesson: (lessonId: string, xpEarned: number, accuracy: number) => void;
   isLessonUnlocked: (topicId: string, lessonId: string) => boolean;
   getTopicCompletedCount: (topicId: string) => number;
+  getTotalLessonsCompleted: () => number;
+  setSoundEnabled: (enabled: boolean) => void;
+  resetProgress: () => void;
 }
 
 function todayString(): string {
@@ -36,6 +47,8 @@ function accuracyToStars(accuracy: number): number {
   return 1;
 }
 
+const initialDaily: DailyActivity = { date: '', xp: 0, lessons: 0 };
+
 export const useProgressStore = create<ProgressState>()(
   persist(
     (set, get) => ({
@@ -43,10 +56,12 @@ export const useProgressStore = create<ProgressState>()(
       streak: 0,
       lastActiveDate: null,
       lessonProgress: {},
+      daily: initialDaily,
+      soundEnabled: true,
 
       completeLesson: (lessonId, xpEarned, accuracy) => {
         const today = todayString();
-        const { lastActiveDate, streak, lessonProgress, xp } = get();
+        const { lastActiveDate, streak, lessonProgress, xp, daily } = get();
 
         let newStreak = streak;
         if (lastActiveDate === null) {
@@ -64,11 +79,17 @@ export const useProgressStore = create<ProgressState>()(
           timesCompleted: (existing?.timesCompleted ?? 0) + 1,
         };
 
+        const newDaily: DailyActivity =
+          daily.date === today
+            ? { date: today, xp: daily.xp + xpEarned, lessons: daily.lessons + 1 }
+            : { date: today, xp: xpEarned, lessons: 1 };
+
         set({
           xp: xp + xpEarned,
           streak: newStreak,
           lastActiveDate: today,
           lessonProgress: { ...lessonProgress, [lessonId]: updated },
+          daily: newDaily,
         });
       },
 
@@ -87,6 +108,21 @@ export const useProgressStore = create<ProgressState>()(
         const progress = get().lessonProgress;
         return topic.lessons.filter((l) => Boolean(progress[l.id])).length;
       },
+
+      getTotalLessonsCompleted: () => {
+        return Object.keys(get().lessonProgress).length;
+      },
+
+      setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+
+      resetProgress: () =>
+        set({
+          xp: 0,
+          streak: 0,
+          lastActiveDate: null,
+          lessonProgress: {},
+          daily: initialDaily,
+        }),
     }),
     {
       name: 'physingo-progress',
@@ -94,3 +130,11 @@ export const useProgressStore = create<ProgressState>()(
     }
   )
 );
+
+function currentDaily(state: Pick<ProgressState, 'daily'>): DailyActivity {
+  return state.daily.date === todayString() ? state.daily : initialDaily;
+}
+
+export function useTodayActivity(): DailyActivity {
+  return useProgressStore((s) => currentDaily(s));
+}

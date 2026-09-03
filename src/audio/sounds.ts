@@ -1,4 +1,5 @@
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
+import { useProgressStore } from '../store/useProgressStore';
 
 const correctPlayer = createAudioPlayer(require('../../assets/sounds/correct.wav'));
 const incorrectPlayer = createAudioPlayer(require('../../assets/sounds/incorrect.wav'));
@@ -14,6 +15,7 @@ function ensureAudioMode(): Promise<void> {
 }
 
 async function play(player: AudioPlayer) {
+  if (!useProgressStore.getState().soundEnabled) return;
   try {
     await ensureAudioMode();
     await player.seekTo(0);
