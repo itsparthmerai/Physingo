@@ -9,6 +9,7 @@ import { useProgressStore } from '../store/useProgressStore';
 import { ProgressBar } from '../components/ProgressBar';
 import { HeartsDisplay } from '../components/HeartsDisplay';
 import { OptionButton, OptionState } from '../components/OptionButton';
+import { sounds } from '../audio/sounds';
 import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Lesson'>;
@@ -105,8 +106,10 @@ export function LessonScreen({ route, navigation }: Props) {
     setSubmitted(true);
     if (correct) {
       setCorrectCount((c) => c + 1);
+      sounds.playCorrect();
     } else {
       setHearts((h) => Math.max(0, h - 1));
+      sounds.playIncorrect();
     }
   }
 
@@ -119,6 +122,7 @@ export function LessonScreen({ route, navigation }: Props) {
       const accuracy = correctCount / total;
       const xpEarned = correctCount * XP_PER_CORRECT + (accuracy === 1 ? PERFECT_BONUS : 0);
       completeLesson(lessonId, xpEarned, accuracy);
+      sounds.playComplete();
       navigation.replace('LessonResult', { lessonId, correct: correctCount, total, xpEarned });
       return;
     }
