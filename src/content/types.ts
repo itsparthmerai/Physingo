@@ -40,6 +40,8 @@ export interface Lesson {
 export interface Unit {
   id: string;
   title: string;
+  /** Emoji shown in the unit's section banner. Falls back to the topic's icon if omitted. */
+  icon?: string;
   lessons: Lesson[];
 }
 

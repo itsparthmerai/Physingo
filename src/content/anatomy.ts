@@ -11,6 +11,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u1',
       title: 'Unit 1: Terminology, Tissues, Joints',
+      icon: '🔬',
       lessons: [
         {
           id: 'anatomy-u1-l1',
@@ -309,6 +310,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u2',
       title: 'Unit 2: The Back, Vertebral Column, Musculature',
+      icon: '🦴',
       lessons: [
         {
           id: 'anatomy-u2-l1',
@@ -682,6 +684,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u3',
       title: 'Unit 3: Posterior Cervical Triangle, Axillary Region',
+      icon: '🧍',
       lessons: [
         {
           id: 'anatomy-u3-l1',
@@ -1058,6 +1061,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u4',
       title: 'Unit 4: Axioappendicular Muscles, Shoulder Joint',
+      icon: '🤷',
       lessons: [
         {
           id: 'anatomy-u4-l1',
@@ -1339,6 +1343,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u5',
       title: 'Unit 5: The Arm, Elbow, Cubital Fossa',
+      icon: '💪',
       lessons: [
         {
           id: 'anatomy-u5-l1',
@@ -1733,6 +1738,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u6',
       title: 'Unit 6: Forearm, Wrist',
+      icon: '🤲',
       lessons: [
         {
           id: 'anatomy-u6-l1',
@@ -2092,6 +2098,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u7',
       title: 'Unit 7: The Hand',
+      icon: '✋',
       lessons: [
         {
           id: 'anatomy-u7-l1',
@@ -2525,6 +2532,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u8',
       title: 'Unit 8: Anterior Neck, Face, TMJ',
+      icon: '😬',
       lessons: [
         {
           id: 'anatomy-u8-l1',
@@ -2964,6 +2972,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u9',
       title: 'Unit 9: The Thorax',
+      icon: '🫁',
       lessons: [
         {
           id: 'anatomy-u9-l1',
@@ -3390,6 +3399,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u10',
       title: 'Unit 10: Abdominal Wall, Viscera, Vasculature',
+      icon: '🫃',
       lessons: [
         {
           id: 'anatomy-u10-l1',
@@ -3753,6 +3763,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u11',
       title: 'Unit 11: Posterior Abdominal Wall, Pelvis, Gluteal Region',
+      icon: '🍑',
       lessons: [
         {
           id: 'anatomy-u11-l1',
@@ -4144,6 +4155,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u12',
       title: 'Unit 12: Hip, Thigh, Knee',
+      icon: '🦵',
       lessons: [
         {
           id: 'anatomy-u12-l1',
@@ -4511,6 +4523,7 @@ export const anatomy: Topic = {
     {
       id: 'anatomy-u13',
       title: 'Unit 13: Leg, Foot, Ankle',
+      icon: '🦶',
       lessons: [
         {
           id: 'anatomy-u13-l1',
