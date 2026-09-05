@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { getTopic, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
-import { LessonNode } from '../components/LessonNode';
+import { LessonPath } from '../components/LessonPath';
 import { UnitBanner } from '../components/UnitBanner';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
@@ -33,8 +33,6 @@ export function TopicScreen({ route, navigation }: Props) {
   const completed = allLessons.filter((l) => Boolean(lessonProgress[l.id])).length;
   const showUnitHeaders = topic.units.length > 1;
 
-  let runningIndex = 0;
-
   return (
     <SafeAreaView style={styles.safe}>
       <View style={[styles.header, styles.shadow, { backgroundColor: topic.color }]}>
@@ -58,23 +56,17 @@ export function TopicScreen({ route, navigation }: Props) {
               </View>
             )}
             <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
-              {unit.lessons.map((lesson) => {
-                const index = runningIndex++;
-                const locked = !isLessonUnlocked(topic.id, lesson.id);
-                const stars = lessonProgress[lesson.id]?.stars ?? 0;
-                return (
-                  <LessonNode
-                    key={lesson.id}
-                    title={lesson.title}
-                    index={index}
-                    stars={stars}
-                    locked={locked}
-                    topicColor={topic.color}
-                    scale={scale}
-                    onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}
-                  />
-                );
-              })}
+              <LessonPath
+                nodes={unit.lessons.map((lesson) => ({
+                  lesson,
+                  locked: !isLessonUnlocked(topic.id, lesson.id),
+                  stars: lessonProgress[lesson.id]?.stars ?? 0,
+                }))}
+                topicColor={topic.color}
+                scale={scale}
+                themeIndex={unitIndex}
+                onPressLesson={(lessonId) => navigation.navigate('Lesson', { lessonId })}
+              />
             </View>
           </View>
         ))}

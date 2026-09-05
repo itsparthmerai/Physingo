@@ -4,7 +4,6 @@ import { colors, shade } from '../theme/colors';
 
 export function LessonNode({
   title,
-  index,
   stars,
   locked,
   topicColor,
@@ -12,7 +11,6 @@ export function LessonNode({
   scale = 1,
 }: {
   title: string;
-  index: number;
   stars: number;
   locked: boolean;
   topicColor: string;
@@ -50,14 +48,7 @@ export function LessonNode({
   const edge = locked ? colors.lockedDark : completed ? colors.xpDark : shade(topicColor, -22);
 
   return (
-    <View
-      style={[
-        styles.wrapper,
-        { width: Math.round(100 * scale) },
-        index % 2 === 1 && styles.offsetRight,
-        index % 2 === 0 && index !== 0 && styles.offsetLeft,
-      ]}
-    >
+    <View style={[styles.wrapper, { width: Math.round(100 * scale) }]}>
       <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
         {isNext && (
           <Animated.View
@@ -119,11 +110,7 @@ export function LessonNode({
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
-    alignSelf: 'center',
-    marginVertical: 8,
   },
-  offsetRight: { alignSelf: 'flex-end', marginRight: 30 },
-  offsetLeft: { alignSelf: 'flex-start', marginLeft: 30 },
   ring: {
     position: 'absolute',
   },
