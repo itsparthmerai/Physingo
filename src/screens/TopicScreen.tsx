@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import type { TopicStackParamList } from '../navigation/TopicStack';
 import { getTopic, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { LessonPath } from '../components/LessonPath';
@@ -12,7 +14,10 @@ import { useResponsive, rs } from '../theme/responsive';
 
 const PATH_HORIZONTAL_PADDING = 16;
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Topic'>;
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<TopicStackParamList, 'Topic'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 export function TopicScreen({ route, navigation }: Props) {
   const { topicId } = route.params;
@@ -36,7 +41,11 @@ export function TopicScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={[styles.header, styles.shadow, { backgroundColor: topic.color }]}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backButton}>
+        <Pressable
+          onPress={() => navigation.navigate('MainTabs', { screen: 'Learn', params: { screen: 'Home' } })}
+          hitSlop={12}
+          style={styles.backButton}
+        >
           <Text style={styles.backIcon}>←</Text>
         </Pressable>
         <Text style={[styles.icon, { fontSize: rs(36, scale) }]}>{topic.icon}</Text>

@@ -1,20 +1,14 @@
 import React from 'react';
 import { View, Text, ScrollView, Pressable, Switch, Alert, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { CompositeScreenProps } from '@react-navigation/native';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { MainTabParamList } from '../navigation/MainTabs';
-import type { RootStackParamList } from '../navigation/RootNavigator';
+import type { TopicStackParamList } from '../navigation/TopicStack';
 import { TOPICS, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<MainTabParamList, 'Account'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = NativeStackScreenProps<TopicStackParamList, 'Home'>;
 
 export function AccountScreen({ navigation }: Props) {
   const xp = useProgressStore((s) => s.xp);

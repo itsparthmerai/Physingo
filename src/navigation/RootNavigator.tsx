@@ -1,15 +1,13 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { MainTabs } from './MainTabs';
-import { TopicScreen } from '../screens/TopicScreen';
+import { MainTabs, MainTabParamList } from './MainTabs';
 import { LessonScreen } from '../screens/LessonScreen';
 import { LessonResultScreen } from '../screens/LessonResultScreen';
-import type { TopicId } from '../content/types';
 
 export type RootStackParamList = {
-  MainTabs: undefined;
-  Topic: { topicId: TopicId };
+  MainTabs: NavigatorScreenParams<MainTabParamList>;
   Lesson: { lessonId: string };
   LessonResult: {
     lessonId: string;
@@ -26,7 +24,6 @@ export function RootNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'fade' }} />
-        <Stack.Screen name="Topic" component={TopicScreen} />
         <Stack.Screen
           name="Lesson"
           component={LessonScreen}

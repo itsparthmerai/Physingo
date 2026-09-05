@@ -1,11 +1,8 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { CompositeScreenProps } from '@react-navigation/native';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { MainTabParamList } from '../navigation/MainTabs';
-import type { RootStackParamList } from '../navigation/RootNavigator';
+import type { TopicStackParamList } from '../navigation/TopicStack';
 import { TOPICS, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { StatPill } from '../components/StatPill';
@@ -13,10 +10,7 @@ import { TopicCard } from '../components/TopicCard';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<MainTabParamList, 'Learn'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = NativeStackScreenProps<TopicStackParamList, 'Home'>;
 
 const SLOT_WIDTH: Record<number, `${number}%`> = { 2: '47%', 3: '31%' };
 

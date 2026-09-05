@@ -77,7 +77,9 @@ export function LessonResultScreen({ route, navigation }: Props) {
               variant="success"
               scale={scale}
               onPress={() =>
-                topicId ? navigation.navigate('Topic', { topicId }) : navigation.navigate('MainTabs')
+                topicId
+                  ? navigation.navigate('MainTabs', { screen: 'Learn', params: { screen: 'Topic', params: { topicId } } })
+                  : navigation.navigate('MainTabs', { screen: 'Learn', params: { screen: 'Home' } })
               }
             />
           </Animated.View>
