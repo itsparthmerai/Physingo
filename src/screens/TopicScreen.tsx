@@ -4,30 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { getTopic, getTopicLessons } from '../content';
-import type { Unit } from '../content/types';
 import { useProgressStore } from '../store/useProgressStore';
 import { LessonNode } from '../components/LessonNode';
-import { colors, shade } from '../theme/colors';
+import { UnitBanner } from '../components/UnitBanner';
+import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
 
 const PATH_HORIZONTAL_PADDING = 16;
-
-function UnitBanner({ unit, topicColor, topicIcon, scale }: { unit: Unit; topicColor: string; topicIcon: string; scale: number }) {
-  const dark = shade(topicColor, -18);
-  const light = shade(topicColor, 14);
-  return (
-    <View style={[styles.banner, { backgroundColor: dark, height: rs(128, scale) }]}>
-      <View style={[styles.bannerBlob, styles.bannerBlobLarge, { backgroundColor: light }]} />
-      <View style={[styles.bannerBlob, styles.bannerBlobSmall, { backgroundColor: light }]} />
-      <View style={[styles.bannerIconWrap, { width: rs(64, scale), height: rs(64, scale), borderRadius: rs(32, scale) }]}>
-        <Text style={{ fontSize: rs(34, scale) }}>{unit.icon ?? topicIcon}</Text>
-      </View>
-      <Text style={[styles.bannerTitle, { fontSize: rs(16, scale) }]} numberOfLines={2}>
-        {unit.title}
-      </Text>
-    </View>
-  );
-}
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Topic'>;
 
@@ -67,10 +50,12 @@ export function TopicScreen({ route, navigation }: Props) {
       </View>
 
       <ScrollView contentContainerStyle={styles.path}>
-        {topic.units.map((unit) => (
+        {topic.units.map((unit, unitIndex) => (
           <View key={unit.id} style={styles.unitGroup}>
             {showUnitHeaders && (
-              <UnitBanner unit={unit} topicColor={topic.color} topicIcon={topic.icon} scale={scale} />
+              <View style={styles.bannerBleed}>
+                <UnitBanner unit={unit} index={unitIndex} topicIcon={topic.icon} scale={scale} />
+              </View>
             )}
             <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
               {unit.lessons.map((lesson) => {
@@ -133,40 +118,8 @@ const styles = StyleSheet.create({
   },
   path: { paddingTop: 8, paddingHorizontal: PATH_HORIZONTAL_PADDING, paddingBottom: 40 },
   unitGroup: { marginTop: 24 },
-  banner: {
+  bannerBleed: {
     marginHorizontal: -PATH_HORIZONTAL_PADDING,
     marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    paddingHorizontal: 24,
-    gap: 10,
-  },
-  bannerBlob: {
-    position: 'absolute',
-    borderRadius: 999,
-    opacity: 0.35,
-  },
-  bannerBlobLarge: {
-    width: 180,
-    height: 180,
-    top: -70,
-    right: -50,
-  },
-  bannerBlobSmall: {
-    width: 100,
-    height: 100,
-    bottom: -40,
-    left: -20,
-  },
-  bannerIconWrap: {
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bannerTitle: {
-    fontWeight: '800',
-    color: colors.white,
-    textAlign: 'center',
   },
 });
