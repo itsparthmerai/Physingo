@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable, Switch, Alert, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Pressable, Switch, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,6 +9,7 @@ import { TOPICS, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { signOutUser } from '../services/authService';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
 
@@ -26,23 +27,12 @@ export function AccountScreen({ navigation }: Props) {
   const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
   const user = useAuthStore((s) => s.user);
   const { scale, contentMaxWidth } = useResponsive();
+  const [confirming, setConfirming] = useState<'reset' | 'signOut' | null>(null);
 
-  function confirmReset() {
-    Alert.alert(
-      'Reset all progress?',
-      'This clears your XP, streak, and lesson history. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Reset', style: 'destructive', onPress: resetProgress },
-      ]
-    );
-  }
-
-  function confirmSignOut() {
-    Alert.alert('Sign out?', 'Your progress stays saved to your account for next time.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: signOutUser },
-    ]);
+  function handleConfirm() {
+    if (confirming === 'reset') resetProgress();
+    if (confirming === 'signOut') signOutUser();
+    setConfirming(null);
   }
 
   return (
@@ -78,7 +68,7 @@ export function AccountScreen({ navigation }: Props) {
                 </View>
                 <Pressable
                   style={({ pressed }) => [styles.accountButton, pressed && styles.pressed]}
-                  onPress={confirmSignOut}
+                  onPress={() => setConfirming('signOut')}
                 >
                   <Text style={styles.accountButtonText}>Sign Out</Text>
                 </Pressable>
@@ -149,7 +139,7 @@ export function AccountScreen({ navigation }: Props) {
 
           <Pressable
             style={({ pressed }) => [styles.dangerButton, pressed && styles.dangerButtonPressed]}
-            onPress={confirmReset}
+            onPress={() => setConfirming('reset')}
           >
             <Text style={styles.dangerButtonText}>Reset all progress</Text>
           </Pressable>
@@ -157,6 +147,20 @@ export function AccountScreen({ navigation }: Props) {
           <Text style={styles.about}>Physingo v1.0.0</Text>
         </View>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={confirming !== null}
+        title={confirming === 'reset' ? 'Reset all progress?' : 'Sign out?'}
+        message={
+          confirming === 'reset'
+            ? 'This clears your XP, streak, and lesson history. This cannot be undone.'
+            : 'Your progress stays saved to your account for next time.'
+        }
+        confirmLabel={confirming === 'reset' ? 'Reset' : 'Sign Out'}
+        destructive
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirming(null)}
+      />
     </SafeAreaView>
   );
 }
