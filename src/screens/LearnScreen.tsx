@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { TopicStackParamList } from '../navigation/TopicStack';
 import { TOPICS, getTopicLessons } from '../content';
-import { useProgressStore } from '../store/useProgressStore';
+import { useProgressStore, useHearts, formatHeartCountdown } from '../store/useProgressStore';
 import { StatPill } from '../components/StatPill';
 import { TopicCard } from '../components/TopicCard';
 import { colors } from '../theme/colors';
@@ -18,6 +18,7 @@ export function LearnScreen({ navigation }: Props) {
   const xp = useProgressStore((s) => s.xp);
   const streak = useProgressStore((s) => s.streak);
   const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
+  const { hearts, maxHearts, msUntilNextHeart } = useHearts();
   const { scale, columns, contentMaxWidth } = useResponsive();
 
   return (
@@ -27,7 +28,13 @@ export function LearnScreen({ navigation }: Props) {
         <View style={styles.statsRow}>
           <StatPill icon="🔥" value={streak} tint={colors.streakTint} textColor={colors.streak} scale={scale} />
           <StatPill icon="⚡" value={xp} tint={colors.xpTint} textColor={colors.xpDark} scale={scale} />
+          <StatPill icon="❤️" value={hearts} tint={colors.errorTint} textColor={colors.heart} scale={scale} />
         </View>
+        {hearts < maxHearts && msUntilNextHeart !== null && (
+          <Text style={[styles.heartTimer, { fontSize: rs(12, scale) }]}>
+            Next heart in {formatHeartCountdown(msUntilNextHeart)}
+          </Text>
+        )}
       </View>
 
       <ScrollView contentContainerStyle={[styles.scrollContent, { padding: rs(16, Math.min(scale, 1.2)) }]}>
@@ -68,6 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statsRow: { flexDirection: 'row', gap: 8 },
+  heartTimer: { color: colors.textMuted, marginTop: 6 },
   scrollContent: { padding: 16, paddingBottom: 40 },
   sectionLabel: {
     fontWeight: '700',

@@ -1,7 +1,36 @@
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TOPICS, getTopicLessons } from '../content';
+
+export const MAX_HEARTS = 5;
+export const HEART_REGEN_MS = 20 * 60 * 1000; // each heart takes 20 minutes to regenerate
+
+/**
+ * Pure, timestamp-based heart regeneration. Given the last-known hearts count and the
+ * timestamp the current regen countdown started at (null when hearts are already full),
+ * returns the up-to-date hearts count and regen anchor as of `now`. Leftover progress
+ * toward the next heart (if more than one regen interval has elapsed) is preserved by
+ * advancing the anchor by exact multiples of HEART_REGEN_MS rather than resetting it.
+ */
+export function computeHeartsSync(
+  hearts: number,
+  regenStartedAt: number | null,
+  now: number
+): { hearts: number; regenStartedAt: number | null } {
+  if (hearts >= MAX_HEARTS || regenStartedAt === null) {
+    return { hearts, regenStartedAt: null };
+  }
+  const elapsed = now - regenStartedAt;
+  if (elapsed < HEART_REGEN_MS) {
+    return { hearts, regenStartedAt };
+  }
+  const regenerated = Math.floor(elapsed / HEART_REGEN_MS);
+  const newHearts = Math.min(MAX_HEARTS, hearts + regenerated);
+  const newRegenStartedAt = newHearts >= MAX_HEARTS ? null : regenStartedAt + regenerated * HEART_REGEN_MS;
+  return { hearts: newHearts, regenStartedAt: newRegenStartedAt };
+}
 
 export interface LessonProgress {
   bestAccuracy: number;
@@ -22,11 +51,15 @@ interface ProgressState {
   lessonProgress: Record<string, LessonProgress>;
   daily: DailyActivity;
   soundEnabled: boolean;
+  hearts: number;
+  heartRegenStartedAt: number | null;
   completeLesson: (lessonId: string, xpEarned: number, accuracy: number) => void;
   isLessonUnlocked: (topicId: string, lessonId: string) => boolean;
   getTopicCompletedCount: (topicId: string) => number;
   getTotalLessonsCompleted: () => number;
   setSoundEnabled: (enabled: boolean) => void;
+  loseHeart: () => void;
+  refreshHearts: () => void;
   resetProgress: () => void;
 }
 
@@ -58,6 +91,8 @@ export const useProgressStore = create<ProgressState>()(
       lessonProgress: {},
       daily: initialDaily,
       soundEnabled: true,
+      hearts: MAX_HEARTS,
+      heartRegenStartedAt: null,
 
       completeLesson: (lessonId, xpEarned, accuracy) => {
         const today = todayString();
@@ -116,6 +151,22 @@ export const useProgressStore = create<ProgressState>()(
 
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
 
+      loseHeart: () => {
+        const { hearts, heartRegenStartedAt } = get();
+        const synced = computeHeartsSync(hearts, heartRegenStartedAt, Date.now());
+        const nextHearts = Math.max(0, synced.hearts - 1);
+        const nextRegenStartedAt = synced.regenStartedAt ?? Date.now();
+        set({ hearts: nextHearts, heartRegenStartedAt: nextHearts >= MAX_HEARTS ? null : nextRegenStartedAt });
+      },
+
+      refreshHearts: () => {
+        const { hearts, heartRegenStartedAt } = get();
+        const synced = computeHeartsSync(hearts, heartRegenStartedAt, Date.now());
+        if (synced.hearts !== hearts || synced.regenStartedAt !== heartRegenStartedAt) {
+          set({ hearts: synced.hearts, heartRegenStartedAt: synced.regenStartedAt });
+        }
+      },
+
       resetProgress: () =>
         set({
           xp: 0,
@@ -123,6 +174,8 @@ export const useProgressStore = create<ProgressState>()(
           lastActiveDate: null,
           lessonProgress: {},
           daily: initialDaily,
+          hearts: MAX_HEARTS,
+          heartRegenStartedAt: null,
         }),
     }),
     {
@@ -138,4 +191,35 @@ function currentDaily(state: Pick<ProgressState, 'daily'>): DailyActivity {
 
 export function useTodayActivity(): DailyActivity {
   return useProgressStore((s) => currentDaily(s));
+}
+
+/** Live, ticking hearts value that accounts for regeneration without waiting for a store write. */
+export function useHearts(): { hearts: number; maxHearts: number; msUntilNextHeart: number | null } {
+  const hearts = useProgressStore((s) => s.hearts);
+  const heartRegenStartedAt = useProgressStore((s) => s.heartRegenStartedAt);
+  const refreshHearts = useProgressStore((s) => s.refreshHearts);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    refreshHearts();
+    const id = setInterval(() => {
+      setNow(Date.now());
+      refreshHearts();
+    }, 1000);
+    return () => clearInterval(id);
+  }, [refreshHearts]);
+
+  const synced = computeHeartsSync(hearts, heartRegenStartedAt, now);
+  const msUntilNextHeart =
+    synced.regenStartedAt === null ? null : Math.max(0, HEART_REGEN_MS - (now - synced.regenStartedAt));
+
+  return { hearts: synced.hearts, maxHearts: MAX_HEARTS, msUntilNextHeart };
+}
+
+/** Formats a millisecond duration as "m:ss" for a heart-regen countdown. */
+export function formatHeartCountdown(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }

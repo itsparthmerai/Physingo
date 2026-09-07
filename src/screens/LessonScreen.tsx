@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { getLesson } from '../content';
 import { Question } from '../content/types';
-import { useProgressStore } from '../store/useProgressStore';
+import { useProgressStore, useHearts, formatHeartCountdown } from '../store/useProgressStore';
 import { ProgressBar } from '../components/ProgressBar';
 import { HeartsDisplay } from '../components/HeartsDisplay';
 import { OptionButton, OptionState } from '../components/OptionButton';
@@ -16,7 +16,6 @@ import { useResponsive, rs } from '../theme/responsive';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Lesson'>;
 
-const MAX_HEARTS = 5;
 const XP_PER_CORRECT = 10;
 const PERFECT_BONUS = 20;
 
@@ -44,10 +43,11 @@ export function LessonScreen({ route, navigation }: Props) {
   const { lessonId } = route.params;
   const data = useMemo(() => getLesson(lessonId), [lessonId]);
   const completeLesson = useProgressStore((s) => s.completeLesson);
+  const loseHeart = useProgressStore((s) => s.loseHeart);
+  const { hearts, maxHearts, msUntilNextHeart } = useHearts();
   const { scale, contentMaxWidth } = useResponsive();
 
   const [index, setIndex] = useState(0);
-  const [hearts, setHearts] = useState(MAX_HEARTS);
   const [correctCount, setCorrectCount] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [wasCorrect, setWasCorrect] = useState(false);
@@ -55,7 +55,7 @@ export function LessonScreen({ route, navigation }: Props) {
   const [tfAnswer, setTfAnswer] = useState<boolean | null>(null);
   const [fillAnswer, setFillAnswer] = useState('');
   const [multiAnswer, setMultiAnswer] = useState<number[]>([]);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState(() => hearts <= 0);
 
   const feedbackAnim = useRef(new Animated.Value(0)).current;
   const questionAnim = useRef(new Animated.Value(1)).current;
@@ -144,7 +144,7 @@ export function LessonScreen({ route, navigation }: Props) {
       setCorrectCount((c) => c + 1);
       sounds.playCorrect();
     } else {
-      setHearts((h) => Math.max(0, h - 1));
+      loseHeart();
       sounds.playIncorrect();
     }
   }
@@ -167,22 +167,36 @@ export function LessonScreen({ route, navigation }: Props) {
   }
 
   function handleRetry() {
+    if (hearts <= 0) return;
     setIndex(0);
-    setHearts(MAX_HEARTS);
     setCorrectCount(0);
     setFailed(false);
     resetAnswerState();
   }
 
   if (failed) {
+    const outOfHearts = hearts <= 0;
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.failedContainer}>
           <Text style={styles.failedEmoji}>💔</Text>
           <Text style={styles.failedTitle}>Out of hearts!</Text>
-          <Text style={styles.failedSubtitle}>Review the material and try this lesson again.</Text>
+          <View style={styles.failedHearts}>
+            <HeartsDisplay hearts={hearts} maxHearts={maxHearts} />
+          </View>
+          <Text style={styles.failedSubtitle}>
+            {outOfHearts && msUntilNextHeart !== null
+              ? `Next heart in ${formatHeartCountdown(msUntilNextHeart)}. Review the material and come back when you have a heart.`
+              : 'Review the material and try this lesson again.'}
+          </Text>
           <View style={{ width: '100%', maxWidth: 420, marginTop: 24 }}>
-            <PrimaryButton label="Try Again" onPress={handleRetry} variant="success" scale={scale} />
+            <PrimaryButton
+              label={outOfHearts ? 'Waiting for a heart…' : 'Try Again'}
+              onPress={handleRetry}
+              disabled={outOfHearts}
+              variant="success"
+              scale={scale}
+            />
             <View style={{ alignItems: 'center', marginTop: 4 }}>
               <GhostButton label="Exit Lesson" onPress={() => navigation.goBack()} scale={scale} />
             </View>
@@ -222,7 +236,7 @@ export function LessonScreen({ route, navigation }: Props) {
           <Text style={styles.closeIcon}>✕</Text>
         </Pressable>
         <ProgressBar progress={(index + (submitted ? 1 : 0)) / total} color={topic.color} />
-        <HeartsDisplay hearts={hearts} />
+        <HeartsDisplay hearts={hearts} maxHearts={maxHearts} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -425,6 +439,7 @@ const styles = StyleSheet.create({
   footer: { padding: 16 },
   failedContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   failedEmoji: { fontSize: 56, marginBottom: 12 },
+  failedHearts: { marginTop: 12 },
   failedTitle: { fontSize: 22, fontWeight: '800', color: colors.text },
   failedSubtitle: { fontSize: 14, color: colors.textMuted, marginTop: 8, textAlign: 'center' },
 });
