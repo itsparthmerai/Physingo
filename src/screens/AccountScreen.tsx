@@ -138,6 +138,13 @@ export function AccountScreen({ navigation }: Props) {
                 thumbColor={Platform.OS === 'android' ? colors.white : undefined}
               />
             </View>
+            <Pressable
+              style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+              onPress={() => navigation.navigate('PrivacyPolicy')}
+            >
+              <Text style={styles.settingLabel}>Privacy Policy</Text>
+              <Text style={styles.linkChevron}>›</Text>
+            </Pressable>
           </View>
 
           <Pressable
@@ -247,6 +254,16 @@ const styles = StyleSheet.create({
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   settingLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
   settingHint: { fontSize: 13, fontWeight: '600', color: colors.textMuted, marginTop: 2 },
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 14,
+    marginTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  linkChevron: { fontSize: 18, color: colors.textMuted, fontWeight: '700' },
   dangerButton: {
     borderWidth: 1.5,
     borderColor: colors.error,
