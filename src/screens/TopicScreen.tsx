@@ -50,8 +50,8 @@ export function TopicScreen({ route, navigation }: Props) {
         </Pressable>
         <Text style={[styles.icon, { fontSize: rs(36, scale) }]}>{topic.icon}</Text>
         <Text style={[styles.title, { fontSize: rs(22, scale) }]}>{topic.title}</Text>
-        <Text style={[styles.description, { fontSize: rs(13, scale) }]}>{topic.description}</Text>
-        <Text style={[styles.progressLabel, { fontSize: rs(12, scale) }]}>
+        <Text style={[styles.description, { fontSize: rs(14, scale) }]}>{topic.description}</Text>
+        <Text style={[styles.progressLabel, { fontSize: rs(13, scale) }]}>
           {completed}/{allLessons.length} lessons complete
         </Text>
       </View>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   backIcon: { fontSize: 20, color: colors.white },
   icon: { marginBottom: 6 },
   title: { fontWeight: '800', color: colors.white },
-  description: { color: colors.white, opacity: 0.9, marginTop: 4 },
+  description: { color: colors.white, fontWeight: '600', opacity: 0.95, marginTop: 4 },
   progressLabel: {
     fontWeight: '700',
     color: colors.white,

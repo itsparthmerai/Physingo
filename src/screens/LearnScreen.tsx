@@ -31,7 +31,7 @@ export function LearnScreen({ navigation }: Props) {
           <StatPill icon="❤️" value={hearts} tint={colors.errorTint} textColor={colors.heart} scale={scale} />
         </View>
         {hearts < maxHearts && msUntilNextHeart !== null && (
-          <Text style={[styles.heartTimer, { fontSize: rs(12, scale) }]}>
+          <Text style={[styles.heartTimer, { fontSize: rs(13, scale) }]}>
             Next heart in {formatHeartCountdown(msUntilNextHeart)}
           </Text>
         )}
@@ -39,7 +39,7 @@ export function LearnScreen({ navigation }: Props) {
 
       <ScrollView contentContainerStyle={[styles.scrollContent, { padding: rs(16, Math.min(scale, 1.2)) }]}>
         <View style={{ maxWidth: contentMaxWidth * (columns / 2), alignSelf: 'center', width: '100%' }}>
-          <Text style={[styles.sectionLabel, { fontSize: rs(13, scale) }]}>Study tracks</Text>
+          <Text style={[styles.sectionLabel, { fontSize: rs(14, scale) }]}>Study tracks</Text>
           <View style={[styles.grid, { gap: rs(12, scale) }]}>
             {TOPICS.map((topic) => (
               <View key={topic.id} style={{ width: SLOT_WIDTH[columns] ?? '47%' }}>
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statsRow: { flexDirection: 'row', gap: 8 },
-  heartTimer: { color: colors.textMuted, marginTop: 6 },
+  heartTimer: { color: colors.textMuted, fontWeight: '600', marginTop: 6 },
   scrollContent: { padding: 16, paddingBottom: 40 },
   sectionLabel: {
     fontWeight: '700',

@@ -58,17 +58,17 @@ export function TopicCard({
         >
           <Text style={{ fontSize: Math.round(24 * scale) }}>{icon}</Text>
         </View>
-        <Text style={[styles.title, { fontSize: Math.round(15 * scale) }]} numberOfLines={1}>
+        <Text style={[styles.title, { fontSize: Math.round(16 * scale) }]} numberOfLines={1}>
           {title}
         </Text>
-        <Text style={[styles.description, { fontSize: Math.round(12 * scale), lineHeight: Math.round(16 * scale) }]} numberOfLines={2}>
+        <Text style={[styles.description, { fontSize: Math.round(13 * scale), lineHeight: Math.round(18 * scale) }]} numberOfLines={2}>
           {description}
         </Text>
         <View style={styles.footer}>
           <View style={styles.track}>
             <View style={[styles.fill, { width: `${pct * 100}%`, backgroundColor: color }]} />
           </View>
-          <Text style={[styles.count, { fontSize: Math.round(11 * scale) }]}>
+          <Text style={[styles.count, { fontSize: Math.round(12 * scale) }]}>
             {done ? '✓ Complete' : `${completed}/${total}`}
           </Text>
         </View>
@@ -103,9 +103,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: { fontWeight: '800', color: colors.text, marginBottom: 2 },
-  description: { color: colors.textMuted, minHeight: 32 },
+  description: { color: colors.textMuted, fontWeight: '600', minHeight: 36 },
   footer: { marginTop: 12, gap: 6 },
   track: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
   fill: { height: '100%', borderRadius: 3 },
-  count: { fontWeight: '700', color: colors.textMuted },
+  count: { fontWeight: '800', color: colors.textMuted },
 });

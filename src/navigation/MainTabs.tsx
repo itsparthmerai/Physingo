@@ -52,7 +52,7 @@ export function MainTabs() {
             default: {},
           }),
         },
-        tabBarLabelStyle: { fontSize: rs(12, scale), fontWeight: '700' },
+        tabBarLabelStyle: { fontSize: rs(13, scale), fontWeight: '800' },
         tabBarIcon: ({ color }) => (
           <Text style={{ fontSize: rs(20, scale), color }}>{TAB_ICONS[route.name as keyof MainTabParamList]}</Text>
         ),

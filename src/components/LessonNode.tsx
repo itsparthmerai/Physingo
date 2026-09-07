@@ -100,7 +100,7 @@ export function LessonNode({
           </Animated.View>
         </Pressable>
       </View>
-      <Text style={[styles.label, { width: Math.round(100 * scale), fontSize: Math.round(12 * scale) }]} numberOfLines={2}>
+      <Text style={[styles.label, { width: Math.round(100 * scale), fontSize: Math.round(13 * scale) }]} numberOfLines={2}>
         {title}
       </Text>
     </View>
@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
   label: {
     textAlign: 'center',
     color: colors.textMuted,
+    fontWeight: '700',
     marginTop: 4,
   },
 });

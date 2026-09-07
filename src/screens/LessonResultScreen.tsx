@@ -117,6 +117,6 @@ const styles = StyleSheet.create({
     }),
   },
   statRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  statLabel: { fontSize: 15, color: colors.textMuted },
+  statLabel: { fontSize: 15, fontWeight: '600', color: colors.textMuted },
   statValue: { fontSize: 16, fontWeight: '800', color: colors.text },
 });

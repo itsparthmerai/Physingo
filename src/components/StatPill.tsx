@@ -29,7 +29,7 @@ export function StatPill({
       ]}
     >
       <Text style={{ fontSize: Math.round(16 * scale) }}>{icon}</Text>
-      <Text style={[styles.value, { color: textColor, fontSize: Math.round(14 * scale) }]}>{value}</Text>
+      <Text style={[styles.value, { color: textColor, fontSize: Math.round(15 * scale) }]}>{value}</Text>
     </View>
   );
 }

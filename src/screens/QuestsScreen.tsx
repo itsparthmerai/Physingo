@@ -29,8 +29,8 @@ export function QuestsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionLabel, { fontSize: rs(13, scale) }]}>Today's quests</Text>
-            <Text style={[styles.sectionCount, { fontSize: rs(13, scale) }]}>
+            <Text style={[styles.sectionLabel, { fontSize: rs(14, scale) }]}>Today's quests</Text>
+            <Text style={[styles.sectionCount, { fontSize: rs(14, scale) }]}>
               {dailyDone}/{dailyQuests.length}
             </Text>
           </View>
@@ -39,7 +39,7 @@ export function QuestsScreen() {
           ))}
 
           <View style={[styles.sectionHeader, { marginTop: 20 }]}>
-            <Text style={[styles.sectionLabel, { fontSize: rs(13, scale) }]}>Objectives</Text>
+            <Text style={[styles.sectionLabel, { fontSize: rs(14, scale) }]}>Objectives</Text>
           </View>
           {objectiveQuests.map((q) => (
             <QuestCard key={q.id} quest={q} scale={scale} />
@@ -72,5 +72,5 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  sectionCount: { fontWeight: '700', color: colors.textMuted },
+  sectionCount: { fontWeight: '800', color: colors.textMuted },
 });

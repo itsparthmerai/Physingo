@@ -42,12 +42,12 @@ export function AccountScreen({ navigation }: Props) {
             <View style={[styles.summaryCard, styles.shadow, { backgroundColor: colors.streakTint, borderColor: colors.streak }]}>
               <Text style={[styles.summaryEmoji, { fontSize: rs(26, scale) }]}>🔥</Text>
               <Text style={[styles.summaryValue, { fontSize: rs(22, scale), color: colors.streak }]}>{streak}</Text>
-              <Text style={[styles.summaryLabel, { fontSize: rs(12, scale) }]}>Day streak</Text>
+              <Text style={[styles.summaryLabel, { fontSize: rs(13, scale) }]}>Day streak</Text>
             </View>
             <View style={[styles.summaryCard, styles.shadow, { backgroundColor: colors.xpTint, borderColor: colors.xpDark }]}>
               <Text style={[styles.summaryEmoji, { fontSize: rs(26, scale) }]}>⚡</Text>
               <Text style={[styles.summaryValue, { fontSize: rs(22, scale), color: colors.xpDark }]}>{xp}</Text>
-              <Text style={[styles.summaryLabel, { fontSize: rs(12, scale) }]}>Total XP</Text>
+              <Text style={[styles.summaryLabel, { fontSize: rs(13, scale) }]}>Total XP</Text>
             </View>
           </View>
 
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   summaryEmoji: { marginBottom: 6 },
   summaryValue: { fontWeight: '800' },
-  summaryLabel: { color: colors.textMuted, marginTop: 2 },
+  summaryLabel: { color: colors.textMuted, fontWeight: '600', marginTop: 2 },
   sectionTitle: { fontWeight: '800', color: colors.text, marginBottom: 12, marginTop: 4 },
   topicRow: {
     flexDirection: 'row',
@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   topicIcon: { fontSize: 20 },
-  topicTitle: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 6 },
+  topicTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 6 },
   topicTrack: { height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden' },
   topicFill: { height: '100%', borderRadius: 4 },
-  topicCount: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
+  topicCount: { fontSize: 14, fontWeight: '800', color: colors.textMuted },
   settingsCard: {
     backgroundColor: colors.card,
     borderRadius: 14,
@@ -172,8 +172,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  settingLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
-  settingHint: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  settingLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
+  settingHint: { fontSize: 13, fontWeight: '600', color: colors.textMuted, marginTop: 2 },
   dangerButton: {
     borderWidth: 1.5,
     borderColor: colors.error,
@@ -184,6 +184,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   dangerButtonPressed: { opacity: 0.7 },
-  dangerButtonText: { color: colors.errorDark, fontWeight: '700', fontSize: 14 },
-  about: { textAlign: 'center', color: colors.textMuted, fontSize: 12 },
+  dangerButtonText: { color: colors.errorDark, fontWeight: '800', fontSize: 15 },
+  about: { textAlign: 'center', color: colors.textMuted, fontWeight: '600', fontSize: 13 },
 });

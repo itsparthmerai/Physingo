@@ -256,7 +256,7 @@ export function LessonScreen({ route, navigation }: Props) {
             },
           ]}
         >
-          <Text style={[styles.topicTag, { color: topic.color, fontSize: rs(13, scale) }]}>
+          <Text style={[styles.topicTag, { color: topic.color, fontSize: rs(14, scale) }]}>
             {topic.icon} {lesson.title}
           </Text>
           <Text style={[styles.prompt, { fontSize: rs(20, scale) }]}>{question.prompt}</Text>
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   content: {},
   topicTag: { fontWeight: '800', marginBottom: 12 },
   prompt: { fontWeight: '700', color: colors.text, marginBottom: 20 },
-  hint: { fontSize: 13, color: colors.textMuted, marginBottom: 10 },
+  hint: { fontSize: 14, fontWeight: '600', color: colors.textMuted, marginBottom: 10 },
   tfRow: { flexDirection: 'row', gap: 12 },
   tfOption: { flex: 1 },
   textInput: {
@@ -435,11 +435,11 @@ const styles = StyleSheet.create({
   feedbackCorrect: { backgroundColor: colors.successTint },
   feedbackIncorrect: { backgroundColor: colors.errorTint },
   feedbackTitle: { fontSize: 16, fontWeight: '800', color: colors.text, marginBottom: 4 },
-  feedbackText: { fontSize: 14, color: colors.text },
+  feedbackText: { fontSize: 15, fontWeight: '500', color: colors.text },
   footer: { padding: 16 },
   failedContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   failedEmoji: { fontSize: 56, marginBottom: 12 },
   failedHearts: { marginTop: 12 },
   failedTitle: { fontSize: 22, fontWeight: '800', color: colors.text },
-  failedSubtitle: { fontSize: 14, color: colors.textMuted, marginTop: 8, textAlign: 'center' },
+  failedSubtitle: { fontSize: 15, fontWeight: '500', color: colors.textMuted, marginTop: 8, textAlign: 'center' },
 });

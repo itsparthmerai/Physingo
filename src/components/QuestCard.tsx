@@ -35,8 +35,8 @@ export function QuestCard({ quest, scale = 1 }: { quest: Quest; scale?: number }
         <Text style={{ fontSize: Math.round(20 * scale), color: colors.white }}>{quest.completed ? '✓' : quest.icon}</Text>
       </Animated.View>
       <View style={{ flex: 1 }}>
-        <Text style={[styles.title, { fontSize: Math.round(14 * scale) }]}>{quest.title}</Text>
-        <Text style={[styles.description, { fontSize: Math.round(12 * scale) }]}>{quest.description}</Text>
+        <Text style={[styles.title, { fontSize: Math.round(15 * scale) }]}>{quest.title}</Text>
+        <Text style={[styles.description, { fontSize: Math.round(13 * scale) }]}>{quest.description}</Text>
         <View style={styles.trackRow}>
           <View style={styles.track}>
             <Animated.View
@@ -91,10 +91,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success,
   },
   title: { fontWeight: '800', color: colors.text },
-  description: { color: colors.textMuted, marginTop: 1, marginBottom: 8 },
+  description: { color: colors.textMuted, fontWeight: '600', marginTop: 1, marginBottom: 8 },
   trackRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   track: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden' },
   fill: { height: '100%', borderRadius: 4, backgroundColor: colors.primary },
   fillCompleted: { backgroundColor: colors.success },
-  count: { fontSize: 11, fontWeight: '700', color: colors.textMuted, minWidth: 40, textAlign: 'right' },
+  count: { fontSize: 12, fontWeight: '800', color: colors.textMuted, minWidth: 40, textAlign: 'right' },
 });
