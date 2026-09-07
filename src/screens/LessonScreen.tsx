@@ -182,7 +182,7 @@ export function LessonScreen({ route, navigation }: Props) {
           <Text style={styles.failedEmoji}>💔</Text>
           <Text style={styles.failedTitle}>Out of hearts!</Text>
           <View style={styles.failedHearts}>
-            <HeartsDisplay hearts={hearts} maxHearts={maxHearts} />
+            <HeartsDisplay hearts={hearts} maxHearts={maxHearts} scale={scale} />
           </View>
           <Text style={styles.failedSubtitle}>
             {outOfHearts && msUntilNextHeart !== null
@@ -236,7 +236,7 @@ export function LessonScreen({ route, navigation }: Props) {
           <Text style={styles.closeIcon}>✕</Text>
         </Pressable>
         <ProgressBar progress={(index + (submitted ? 1 : 0)) / total} color={topic.color} />
-        <HeartsDisplay hearts={hearts} maxHearts={maxHearts} />
+        <HeartsDisplay hearts={hearts} maxHearts={maxHearts} scale={scale} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>

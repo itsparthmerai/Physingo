@@ -1,7 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 
-export function HeartsDisplay({ hearts, maxHearts = 5 }: { hearts: number; maxHearts?: number }) {
+export function HeartsDisplay({
+  hearts,
+  maxHearts = 5,
+  scale = 1,
+}: {
+  hearts: number;
+  maxHearts?: number;
+  scale?: number;
+}) {
   const prevHearts = useRef(hearts);
   const shake = useRef(new Animated.Value(0)).current;
 
@@ -21,9 +29,9 @@ export function HeartsDisplay({ hearts, maxHearts = 5 }: { hearts: number; maxHe
   const translateX = shake.interpolate({ inputRange: [-1, 0, 1], outputRange: [-5, 0, 5] });
 
   return (
-    <Animated.View style={[styles.row, { transform: [{ translateX }] }]}>
+    <Animated.View style={[styles.row, { gap: Math.round(4 * scale), transform: [{ translateX }] }]}>
       {Array.from({ length: maxHearts }).map((_, i) => (
-        <Text key={i} style={styles.heart}>
+        <Text key={i} style={[styles.heart, { fontSize: Math.round(20 * scale) }]}>
           {i < hearts ? '❤️' : '🤍'}
         </Text>
       ))}
@@ -32,6 +40,6 @@ export function HeartsDisplay({ hearts, maxHearts = 5 }: { hearts: number; maxHe
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 2 },
-  heart: { fontSize: 18 },
+  row: { flexDirection: 'row' },
+  heart: {},
 });
