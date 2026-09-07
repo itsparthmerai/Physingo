@@ -26,17 +26,15 @@ export function LearnScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <View style={styles.topRow}>
-          <View>
-            <Text style={[styles.appName, { fontSize: rs(26, scale) }]}>Physingo</Text>
-            <StatPill icon="🔥" value={streak} tint={colors.streakTint} textColor={colors.streak} scale={scale} />
-          </View>
+          <Text style={[styles.appName, { fontSize: rs(26, scale) }]}>Physingo</Text>
 
           <View style={styles.statsBlock}>
-            <View style={styles.statsBlockRow}>
+            <View style={[styles.statsBlockRow, { marginBottom: rs(6, scale) }]}>
+              <StatPill icon="🔥" value={streak} tint={colors.streakTint} textColor={colors.streak} scale={scale} />
               <StatPill icon="⚡" value={xp} tint={colors.xpTint} textColor={colors.xpDark} scale={scale} />
-              <View style={[styles.heartsPill, { paddingHorizontal: rs(12, scale), paddingVertical: rs(7, scale) }]}>
-                <HeartsDisplay hearts={hearts} maxHearts={maxHearts} scale={scale} />
-              </View>
+            </View>
+            <View style={[styles.heartsPill, { paddingHorizontal: rs(12, scale), paddingVertical: rs(7, scale) }]}>
+              <HeartsDisplay hearts={hearts} maxHearts={maxHearts} scale={scale} />
             </View>
             {hearts < maxHearts && msUntilNextHeart !== null && (
               <Text style={[styles.heartTimer, { fontSize: rs(12, scale) }]}>
@@ -82,7 +80,6 @@ const styles = StyleSheet.create({
   appName: {
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 8,
   },
   topRow: {
     flexDirection: 'row',
