@@ -44,15 +44,19 @@ export interface DailyActivity {
   lessons: number;
 }
 
-interface ProgressState {
+/** The subset of progress that gets synced to the cloud (device-local prefs like soundEnabled are excluded). */
+export interface SyncableProgress {
   xp: number;
   streak: number;
   lastActiveDate: string | null;
   lessonProgress: Record<string, LessonProgress>;
   daily: DailyActivity;
-  soundEnabled: boolean;
   hearts: number;
   heartRegenStartedAt: number | null;
+}
+
+interface ProgressState extends SyncableProgress {
+  soundEnabled: boolean;
   completeLesson: (lessonId: string, xpEarned: number, accuracy: number) => void;
   isLessonUnlocked: (topicId: string, lessonId: string) => boolean;
   getTopicCompletedCount: (topicId: string) => number;
@@ -60,6 +64,7 @@ interface ProgressState {
   setSoundEnabled: (enabled: boolean) => void;
   loseHeart: () => void;
   refreshHearts: () => void;
+  hydrateFromRemote: (data: SyncableProgress) => void;
   resetProgress: () => void;
 }
 
@@ -167,6 +172,8 @@ export const useProgressStore = create<ProgressState>()(
         }
       },
 
+      hydrateFromRemote: (data) => set(data),
+
       resetProgress: () =>
         set({
           xp: 0,
@@ -184,6 +191,11 @@ export const useProgressStore = create<ProgressState>()(
     }
   )
 );
+
+export function getSyncableProgress(state: ProgressState = useProgressStore.getState()): SyncableProgress {
+  const { xp, streak, lastActiveDate, lessonProgress, daily, hearts, heartRegenStartedAt } = state;
+  return { xp, streak, lastActiveDate, lessonProgress, daily, hearts, heartRegenStartedAt };
+}
 
 function currentDaily(state: Pick<ProgressState, 'daily'>): DailyActivity {
   return state.daily.date === todayString() ? state.daily : initialDaily;

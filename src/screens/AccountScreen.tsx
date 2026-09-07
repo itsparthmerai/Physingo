@@ -1,14 +1,21 @@
 import React from 'react';
 import { View, Text, ScrollView, Pressable, Switch, Alert, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { TopicStackParamList } from '../navigation/TopicStack';
 import { TOPICS, getTopicLessons } from '../content';
 import { useProgressStore } from '../store/useProgressStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { signOutUser } from '../services/authService';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
 
-type Props = NativeStackScreenProps<TopicStackParamList, 'Home'>;
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<TopicStackParamList, 'Home'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 export function AccountScreen({ navigation }: Props) {
   const xp = useProgressStore((s) => s.xp);
@@ -17,6 +24,7 @@ export function AccountScreen({ navigation }: Props) {
   const setSoundEnabled = useProgressStore((s) => s.setSoundEnabled);
   const resetProgress = useProgressStore((s) => s.resetProgress);
   const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
+  const user = useAuthStore((s) => s.user);
   const { scale, contentMaxWidth } = useResponsive();
 
   function confirmReset() {
@@ -28,6 +36,13 @@ export function AccountScreen({ navigation }: Props) {
         { text: 'Reset', style: 'destructive', onPress: resetProgress },
       ]
     );
+  }
+
+  function confirmSignOut() {
+    Alert.alert('Sign out?', 'Your progress stays saved to your account for next time.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign Out', style: 'destructive', onPress: signOutUser },
+    ]);
   }
 
   return (
@@ -49,6 +64,39 @@ export function AccountScreen({ navigation }: Props) {
               <Text style={[styles.summaryValue, { fontSize: rs(22, scale), color: colors.xpDark }]}>{xp}</Text>
               <Text style={[styles.summaryLabel, { fontSize: rs(13, scale) }]}>Total XP</Text>
             </View>
+          </View>
+
+          <View style={[styles.accountCard, styles.shadow]}>
+            {user ? (
+              <>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.accountLabel}>Signed in</Text>
+                  <Text style={styles.accountValue} numberOfLines={1}>
+                    {user.displayName || user.email || 'Account'}
+                  </Text>
+                  <Text style={styles.accountHint}>Your progress syncs across devices</Text>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.accountButton, pressed && styles.pressed]}
+                  onPress={confirmSignOut}
+                >
+                  <Text style={styles.accountButtonText}>Sign Out</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.accountLabel}>Not signed in</Text>
+                  <Text style={styles.accountHint}>Sign in to save your progress across devices</Text>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.accountButton, styles.accountButtonPrimary, pressed && styles.pressed]}
+                  onPress={() => navigation.navigate('SignIn')}
+                >
+                  <Text style={styles.accountButtonPrimaryText}>Sign In</Text>
+                </Pressable>
+              </>
+            )}
           </View>
 
           <Text style={[styles.sectionTitle, { fontSize: rs(16, scale) }]}>Your tracks</Text>
@@ -139,6 +187,31 @@ const styles = StyleSheet.create({
   summaryEmoji: { marginBottom: 6 },
   summaryValue: { fontWeight: '800' },
   summaryLabel: { color: colors.textMuted, fontWeight: '600', marginTop: 2 },
+  accountCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 14,
+    marginBottom: 24,
+  },
+  accountLabel: { fontSize: 12, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 },
+  accountValue: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: 2 },
+  accountHint: { fontSize: 13, fontWeight: '600', color: colors.textMuted, marginTop: 2 },
+  accountButton: {
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  accountButtonPrimary: { backgroundColor: colors.primary, borderColor: colors.primaryDark },
+  accountButtonText: { fontSize: 13, fontWeight: '800', color: colors.text },
+  accountButtonPrimaryText: { fontSize: 13, fontWeight: '800', color: colors.white },
   sectionTitle: { fontWeight: '800', color: colors.text, marginBottom: 12, marginTop: 4 },
   topicRow: {
     flexDirection: 'row',

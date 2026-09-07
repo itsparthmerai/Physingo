@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MainTabs, MainTabParamList } from './MainTabs';
 import { LessonScreen } from '../screens/LessonScreen';
 import { LessonResultScreen } from '../screens/LessonResultScreen';
+import { SignInScreen } from '../screens/SignInScreen';
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
@@ -15,6 +16,7 @@ export type RootStackParamList = {
     total: number;
     xpEarned: number;
   };
+  SignIn: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,6 +36,7 @@ export function RootNavigator() {
           component={LessonResultScreen}
           options={{ gestureEnabled: false, animation: 'fade', animationDuration: 260 }}
         />
+        <Stack.Screen name="SignIn" component={SignInScreen} options={{ animation: 'slide_from_bottom' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
