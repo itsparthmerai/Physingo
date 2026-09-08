@@ -6,7 +6,6 @@ import { MainTabs, MainTabParamList } from './MainTabs';
 import { LessonScreen } from '../screens/LessonScreen';
 import { LessonResultScreen } from '../screens/LessonResultScreen';
 import { SignInScreen } from '../screens/SignInScreen';
-import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
@@ -18,7 +17,6 @@ export type RootStackParamList = {
     xpEarned: number;
   };
   SignIn: undefined;
-  PrivacyPolicy: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,11 +37,6 @@ export function RootNavigator() {
           options={{ gestureEnabled: false, animation: 'fade', animationDuration: 260 }}
         />
         <Stack.Screen name="SignIn" component={SignInScreen} options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen
-          name="PrivacyPolicy"
-          component={PrivacyPolicyScreen}
-          options={{ animation: 'slide_from_bottom' }}
-        />
       </Stack.Navigator>
     </NavigationContainer>
   );

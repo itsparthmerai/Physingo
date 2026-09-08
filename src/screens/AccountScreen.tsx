@@ -10,6 +10,7 @@ import { useProgressStore } from '../store/useProgressStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { signOutUser } from '../services/authService';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { PrivacyPolicyModal } from '../components/PrivacyPolicyModal';
 import { colors } from '../theme/colors';
 import { useResponsive, rs } from '../theme/responsive';
 
@@ -28,6 +29,7 @@ export function AccountScreen({ navigation }: Props) {
   const user = useAuthStore((s) => s.user);
   const { scale, contentMaxWidth } = useResponsive();
   const [confirming, setConfirming] = useState<'reset' | 'signOut' | null>(null);
+  const [policyVisible, setPolicyVisible] = useState(false);
 
   function handleConfirm() {
     if (confirming === 'reset') resetProgress();
@@ -130,7 +132,7 @@ export function AccountScreen({ navigation }: Props) {
             </View>
             <Pressable
               style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
-              onPress={() => navigation.navigate('PrivacyPolicy')}
+              onPress={() => setPolicyVisible(true)}
             >
               <Text style={styles.settingLabel}>Privacy Policy</Text>
               <Text style={styles.linkChevron}>›</Text>
@@ -161,6 +163,8 @@ export function AccountScreen({ navigation }: Props) {
         onConfirm={handleConfirm}
         onCancel={() => setConfirming(null)}
       />
+
+      <PrivacyPolicyModal visible={policyVisible} onClose={() => setPolicyVisible(false)} />
     </SafeAreaView>
   );
 }
