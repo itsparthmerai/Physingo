@@ -21,7 +21,7 @@ export function PrivacyGateScreen() {
         </Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
           <PrivacyPolicyContent scale={scale} />
         </View>
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 },
   title: { fontWeight: '800', color: colors.text, marginBottom: 4 },
   subtitle: { color: colors.textMuted, fontWeight: '600' },
+  scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 20 },
   footer: {
     paddingHorizontal: 20,

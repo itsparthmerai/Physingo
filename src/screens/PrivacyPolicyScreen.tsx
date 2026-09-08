@@ -21,7 +21,7 @@ export function PrivacyPolicyScreen({ navigation }: Props) {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
           <PrivacyPolicyContent scale={scale} />
         </View>
@@ -42,5 +42,6 @@ const styles = StyleSheet.create({
   },
   title: { fontWeight: '800', color: colors.text },
   closeIcon: { fontSize: 20, color: colors.textMuted, fontWeight: '700' },
+  scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
 });
