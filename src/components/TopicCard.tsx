@@ -26,7 +26,7 @@ export function TopicCard({
   const pressAnim = useRef(new Animated.Value(0)).current;
 
   function animateTo(toValue: number) {
-    Animated.timing(pressAnim, { toValue, duration: 100, useNativeDriver: true }).start();
+    Animated.spring(pressAnim, { toValue, useNativeDriver: true, friction: 7, tension: 300 }).start();
   }
 
   const scaleAnim = pressAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.96] });

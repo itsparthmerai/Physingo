@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -15,15 +16,17 @@ export default function App() {
   const hasAcceptedPrivacyPolicy = useLegalStore((s) => s.hasAcceptedPrivacyPolicy);
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="dark" />
-      {!hasHydrated ? (
-        <View style={{ flex: 1, backgroundColor: colors.background }} />
-      ) : !hasAcceptedPrivacyPolicy ? (
-        <PrivacyGateScreen />
-      ) : (
-        <RootNavigator />
-      )}
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        {!hasHydrated ? (
+          <View style={{ flex: 1, backgroundColor: colors.background }} />
+        ) : !hasAcceptedPrivacyPolicy ? (
+          <PrivacyGateScreen />
+        ) : (
+          <RootNavigator />
+        )}
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentType } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { TopicScreen } from '../screens/TopicScreen';
 import type { TopicId } from '../content/types';
 
@@ -15,7 +15,7 @@ export type TopicStackParamList = {
   Topic: { topicId: TopicId };
 };
 
-const Stack = createNativeStackNavigator<TopicStackParamList>();
+const Stack = createStackNavigator<TopicStackParamList>();
 
 export function createTopicStack(HomeComponent: ComponentType<any>) {
   return function TopicStackNavigator() {

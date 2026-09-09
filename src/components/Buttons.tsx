@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Pressable, Text, Animated, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { Pressable, Text, Animated, Easing, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '../theme/colors';
 
 type Variant = 'primary' | 'success' | 'danger' | 'neutral';
@@ -32,7 +32,7 @@ export function PrimaryButton({
   const radius = Math.round(16 * scale);
 
   function animateTo(toValue: number) {
-    Animated.timing(pressAnim, { toValue, duration: 90, useNativeDriver: true }).start();
+    Animated.spring(pressAnim, { toValue, useNativeDriver: true, friction: 7, tension: 300 }).start();
   }
 
   const translateY = pressAnim.interpolate({ inputRange: [0, 1], outputRange: [0, edgeHeight] });
@@ -87,7 +87,12 @@ export function GhostButton({
   const opacity = useRef(new Animated.Value(1)).current;
 
   function animateTo(toValue: number) {
-    Animated.timing(opacity, { toValue, duration: 90, useNativeDriver: true }).start();
+    Animated.timing(opacity, {
+      toValue,
+      duration: 140,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start();
   }
 
   return (
