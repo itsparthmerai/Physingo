@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, Pressable, Animated, Easing, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/Buttons';
 import { PrivacyPolicyModal } from '../components/PrivacyPolicyModal';
@@ -10,13 +10,34 @@ import { useResponsive, rs } from '../theme/responsive';
 export function PrivacyGateScreen() {
   const [checked, setChecked] = useState(false);
   const [policyVisible, setPolicyVisible] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
   const acceptPrivacyPolicy = useLegalStore((s) => s.acceptPrivacyPolicy);
   const { scale } = useResponsive();
+  const cardAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(cardAnim, { toValue: 1, useNativeDriver: true, friction: 8, tension: 60 }).start();
+  }, [cardAnim]);
+
+  function handleAccept() {
+    setDismissing(true);
+    Animated.timing(cardAnim, {
+      toValue: 0,
+      duration: 200,
+      easing: Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => acceptPrivacyPolicy());
+  }
+
+  const cardStyle = {
+    opacity: cardAnim,
+    transform: [{ scale: cardAnim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) }],
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.center}>
-        <View style={[styles.card, styles.shadow]}>
+        <Animated.View style={[styles.card, styles.shadow, cardStyle]} pointerEvents={dismissing ? 'none' : 'auto'}>
           <Text style={[styles.title, { fontSize: rs(22, scale) }]}>Welcome to Physingo</Text>
           <Text style={[styles.subtitle, { fontSize: rs(14, scale) }]}>
             Please review our Privacy Policy before you get started.
@@ -37,12 +58,12 @@ export function PrivacyGateScreen() {
 
           <PrimaryButton
             label="Accept & Continue"
-            onPress={acceptPrivacyPolicy}
-            disabled={!checked}
+            onPress={handleAccept}
+            disabled={!checked || dismissing}
             variant="success"
             scale={scale}
           />
-        </View>
+        </Animated.View>
       </View>
 
       <PrivacyPolicyModal visible={policyVisible} onClose={() => setPolicyVisible(false)} />
