@@ -1,0 +1,287 @@
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Pressable, Switch, StyleSheet, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootNavigator';
+import type { TopicStackParamList } from '../navigation/TopicStack';
+import { TOPICS, getTopicLessons } from '../content';
+import { useProgressStore } from '../store/useProgressStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { signOutUser } from '../services/authService';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { PrivacyPolicyModal } from '../components/PrivacyPolicyModal';
+import { colors } from '../theme/colors';
+import { useResponsive, rs } from '../theme/responsive';
+
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<TopicStackParamList, 'Home'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+export function AccountScreen({ navigation }: Props) {
+  const xp = useProgressStore((s) => s.xp);
+  const streak = useProgressStore((s) => s.streak);
+  const soundEnabled = useProgressStore((s) => s.soundEnabled);
+  const setSoundEnabled = useProgressStore((s) => s.setSoundEnabled);
+  const resetProgress = useProgressStore((s) => s.resetProgress);
+  const getTopicCompletedCount = useProgressStore((s) => s.getTopicCompletedCount);
+  const user = useAuthStore((s) => s.user);
+  const { scale, contentMaxWidth } = useResponsive();
+  const [confirming, setConfirming] = useState<'reset' | 'signOut' | null>(null);
+  const [policyVisible, setPolicyVisible] = useState(false);
+
+  function handleConfirm() {
+    if (confirming === 'reset') resetProgress();
+    if (confirming === 'signOut') signOutUser();
+    setConfirming(null);
+  }
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.header}>
+        <Text style={[styles.title, { fontSize: rs(26, scale) }]}>Account</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
+          <View style={styles.summaryRow}>
+            <View style={[styles.summaryCard, styles.shadow, { backgroundColor: colors.streakTint, borderColor: colors.streak }]}>
+              <Text style={[styles.summaryEmoji, { fontSize: rs(26, scale) }]}>🔥</Text>
+              <Text style={[styles.summaryValue, { fontSize: rs(22, scale), color: colors.streak }]}>{streak}</Text>
+              <Text style={[styles.summaryLabel, { fontSize: rs(13, scale) }]}>Day streak</Text>
+            </View>
+            <View style={[styles.summaryCard, styles.shadow, { backgroundColor: colors.xpTint, borderColor: colors.xpDark }]}>
+              <Text style={[styles.summaryEmoji, { fontSize: rs(26, scale) }]}>⚡</Text>
+              <Text style={[styles.summaryValue, { fontSize: rs(22, scale), color: colors.xpDark }]}>{xp}</Text>
+              <Text style={[styles.summaryLabel, { fontSize: rs(13, scale) }]}>Total XP</Text>
+            </View>
+          </View>
+
+          <View style={[styles.accountCard, styles.shadow]}>
+            {user ? (
+              <>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.accountLabel}>Signed in</Text>
+                  <Text style={styles.accountValue} numberOfLines={1}>
+                    {user.displayName || user.email || 'Account'}
+                  </Text>
+                  <Text style={styles.accountHint}>Your progress syncs across devices</Text>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.accountButton, pressed && styles.pressed]}
+                  onPress={() => setConfirming('signOut')}
+                >
+                  <Text style={styles.accountButtonText}>Sign Out</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.accountLabel}>Not signed in</Text>
+                  <Text style={styles.accountHint}>Sign in to save your progress across devices</Text>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.accountButton, styles.accountButtonPrimary, pressed && styles.pressed]}
+                  onPress={() => navigation.navigate('SignIn')}
+                >
+                  <Text style={styles.accountButtonPrimaryText}>Sign In</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+
+          <Text style={[styles.sectionTitle, { fontSize: rs(16, scale) }]}>Your tracks</Text>
+          {TOPICS.map((topic) => {
+            const completed = getTopicCompletedCount(topic.id);
+            const totalLessons = getTopicLessons(topic).length;
+            const pct = totalLessons > 0 ? completed / totalLessons : 0;
+            return (
+              <Pressable
+                key={topic.id}
+                style={({ pressed }) => [styles.topicRow, styles.shadow, pressed && styles.pressed]}
+                onPress={() => navigation.navigate('Topic', { topicId: topic.id })}
+              >
+                <View style={[styles.topicIconWrap, { backgroundColor: topic.color }]}>
+                  <Text style={styles.topicIcon}>{topic.icon}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.topicTitle}>{topic.title}</Text>
+                  <View style={styles.topicTrack}>
+                    <View style={[styles.topicFill, { width: `${pct * 100}%`, backgroundColor: topic.color }]} />
+                  </View>
+                </View>
+                <Text style={styles.topicCount}>{completed}/{totalLessons}</Text>
+              </Pressable>
+            );
+          })}
+
+          <Text style={[styles.sectionTitle, { fontSize: rs(16, scale) }]}>Settings</Text>
+          <View style={[styles.settingsCard, styles.shadow]}>
+            <View style={styles.settingRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Sound effects</Text>
+                <Text style={styles.settingHint}>Correct, incorrect, and lesson-complete sounds</Text>
+              </View>
+              <Switch
+                value={soundEnabled}
+                onValueChange={setSoundEnabled}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={Platform.OS === 'android' ? colors.white : undefined}
+              />
+            </View>
+            <Pressable
+              style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+              onPress={() => setPolicyVisible(true)}
+            >
+              <Text style={styles.settingLabel}>Privacy Policy</Text>
+              <Text style={styles.linkChevron}>›</Text>
+            </Pressable>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [styles.dangerButton, pressed && styles.dangerButtonPressed]}
+            onPress={() => setConfirming('reset')}
+          >
+            <Text style={styles.dangerButtonText}>Reset all progress</Text>
+          </Pressable>
+
+          <Text style={styles.about}>Physingo v1.0.0</Text>
+        </View>
+      </ScrollView>
+
+      <ConfirmDialog
+        visible={confirming !== null}
+        title={confirming === 'reset' ? 'Reset all progress?' : 'Sign out?'}
+        message={
+          confirming === 'reset'
+            ? 'This clears your XP, streak, and lesson history. This cannot be undone.'
+            : 'Your progress stays saved to your account for next time.'
+        }
+        confirmLabel={confirming === 'reset' ? 'Reset' : 'Sign Out'}
+        destructive
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirming(null)}
+      />
+
+      <PrivacyPolicyModal visible={policyVisible} onClose={() => setPolicyVisible(false)} />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  title: { fontWeight: '800', color: colors.text },
+  content: { padding: 16, paddingBottom: 40 },
+  shadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 1,
+        shadowRadius: 4,
+      },
+      android: { elevation: 2 },
+      default: {},
+    }),
+  },
+  pressed: { opacity: 0.8 },
+  summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 24 },
+  summaryCard: {
+    flex: 1,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    alignItems: 'center',
+  },
+  summaryEmoji: { marginBottom: 6 },
+  summaryValue: { fontWeight: '800' },
+  summaryLabel: { color: colors.textMuted, fontWeight: '600', marginTop: 2 },
+  accountCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 14,
+    marginBottom: 24,
+  },
+  accountLabel: { fontSize: 12, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 },
+  accountValue: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: 2 },
+  accountHint: { fontSize: 13, fontWeight: '600', color: colors.textMuted, marginTop: 2 },
+  accountButton: {
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  accountButtonPrimary: { backgroundColor: colors.primary, borderColor: colors.primaryDark },
+  accountButtonText: { fontSize: 13, fontWeight: '800', color: colors.text },
+  accountButtonPrimaryText: { fontSize: 13, fontWeight: '800', color: colors.white },
+  sectionTitle: { fontWeight: '800', color: colors.text, marginBottom: 12, marginTop: 4 },
+  topicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 12,
+    marginBottom: 10,
+  },
+  topicIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topicIcon: { fontSize: 20 },
+  topicTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 6 },
+  topicTrack: { height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden' },
+  topicFill: { height: '100%', borderRadius: 4 },
+  topicCount: { fontSize: 14, fontWeight: '800', color: colors.textMuted },
+  settingsCard: {
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 14,
+    marginBottom: 20,
+  },
+  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  settingLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
+  settingHint: { fontSize: 13, fontWeight: '600', color: colors.textMuted, marginTop: 2 },
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 14,
+    marginTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  linkChevron: { fontSize: 18, color: colors.textMuted, fontWeight: '700' },
+  dangerButton: {
+    borderWidth: 1.5,
+    borderColor: colors.error,
+    backgroundColor: colors.errorTint,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  dangerButtonPressed: { opacity: 0.7 },
+  dangerButtonText: { color: colors.errorDark, fontWeight: '800', fontSize: 15 },
+  about: { textAlign: 'center', color: colors.textMuted, fontWeight: '600', fontSize: 13 },
+});
